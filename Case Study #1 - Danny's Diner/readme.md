@@ -6,7 +6,7 @@
 
 ## 📕 Table of Contents
 
- -	[Problem Statement](#Problem-Statement)   
+ -	[Problem Statement](Problem-Statement)   
 
  - [Entity Relationship Diagram](#Entity-Relationship-Diagram)
 
