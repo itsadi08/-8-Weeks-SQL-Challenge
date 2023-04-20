@@ -1,0 +1,140 @@
+---Case Study Questions----------------------------------------------
+
+SELECT * from dannys_diner.sales;
+SELECT * from dannys_diner.members;
+SELECT * from dannys_diner.menu;
+
+
+---Q1.What is the total amount each customer spent at the restaurant?
+
+select customer_id,sum(price) as Total_Amount_Spent
+from dannys_diner.sales s
+left join dannys_diner.menu m on m.product_id=s.product_id
+group by customer_id
+order by customer_id
+
+
+---Q2 How many days has each customer visited the restaurant?
+
+select customer_id,count(distinct order_date) as Total_Visits
+from dannys_diner.sales s
+group by customer_id
+order by customer_id
+
+---Q3 What was the first item from the menu purchased by each customer?
+
+select customer_id,product_name from 
+(select customer_id,order_date,product_name,row_number() over(partition by customer_id order by order_date,s.product_id) as rn
+from dannys_diner.sales s
+join dannys_diner.menu m on m.product_id=s.product_id) t
+where rn<=1
+
+---Q4 What is the most purchased item on the menu and how many times was it purchased by all customers?
+ 
+select product_name,count(*) as Purchased_quantity
+from dannys_diner.sales s
+join dannys_diner.menu m
+using( product_id ) 
+group by product_name
+limit 1;
+
+---Q5 Which item was the most popular for each customer?
+
+with cte as (
+select s.customer_id, m.product_name, count(*) as purchase_count,
+rank() over(partition by s.customer_id order by count(*) desc) as rn
+from dannys_diner.sales s
+join dannys_diner.menu m
+using (product_id)
+group by s.customer_id, m.product_name )
+select customer_id, product_name, purchase_count
+from cte
+where rn = 1;
+
+---Q6 Which item was purchased first by the customer after they became a member?
+
+with cte as (select s.customer_id,product_name,order_date, rank() over(partition by s.customer_id order by order_date)rn
+from dannys_diner.sales s
+left join dannys_diner.members mb on s.customer_id=mb.customer_id
+join dannys_diner.menu m 
+using (product_id)
+where order_date>= join_date)
+select customer_id,product_name from cte
+where rn=1
+
+
+---Q7 Which item was purchased just before the customer became a member?
+
+with cte as (select s.customer_id,max(order_date) as last_date
+from dannys_diner.sales s
+left join dannys_diner.members mb on s.customer_id=mb.customer_id
+where order_date< join_date
+group by s.customer_id)
+select s.customer_id,product_name from cte
+join dannys_diner.sales s on s.customer_id=cte.customer_id and s.order_date=cte.last_date
+join dannys_diner.menu m
+using (product_id)
+
+---Q8 What is the total items and amount spent for each member before they became a member?
+
+select s.customer_id,count(s.product_id) as total_items, sum(price) as total_amount_spent 
+from dannys_diner.sales s
+left join dannys_diner.members mb on s.customer_id=mb.customer_id
+join dannys_diner.menu m
+using (product_id)
+where order_date< join_date or join_date is null
+group by s.customer_id
+order by customer_id
+
+---Q9 If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+
+with cte as (select *,case when product_name='sushi'then price*20 else price *10 end as points
+from dannys_diner.menu m)
+select customer_id,sum (points)
+from cte
+join dannys_diner.sales s 
+using (product_id)
+group by s.customer_id
+order by customer_id
+
+/*Q10 In the first week after a customer joins the program (including their join date) they earn 2x points on all items, 
+not just sushi - how many points do customer A and B have at the end of January.*/
+
+with cte as (select s.customer_id,
+case when order_date between join_date and join_date + interval '6 days' then price*20 else price*10 end as points
+from dannys_diner.menu m
+join dannys_diner.sales s on s.product_id= m.product_id
+join dannys_diner.members mb on mb.customer_id = s.customer_id
+where s.order_date >= '2021-01-01' and s.order_date <= '2021-01-31')
+select customer_id,sum (points)
+from cte
+group by customer_id
+order by customer_id
+
+
+-------------------BONUS QUESTIONS--------------------
+
+-- Q11 Join All The Things
+
+select s.customer_id, s.order_date,m.product_name,m.price,
+case when s.order_date >= mb.join_date then 'Y' else 'N' end as member
+from dannys_diner.sales s
+join dannys_diner.menu m using (product_id) 
+left join dannys_diner.members mb using (customer_id)
+
+
+-- Q12 Rank All The Things
+
+with cte as (select s.customer_id, s.order_date,m.product_name,m.price,
+case when s.order_date >= mb.join_date then 'Y' else 'N' end as member
+from dannys_diner.sales s
+join dannys_diner.menu m using (product_id) 
+left join dannys_diner.members mb using (customer_id)
+order by order_date)
+
+select *,
+case when member='Y' then dense_rank()over(partition by customer_id,member order by order_date) else Null end as Ranking
+from cte
+
+
+
