@@ -244,8 +244,9 @@ from cte;
 Click here to expand!
 </summary>
 
- <br>
-
+ <br> 
+ 
+ 
  **1.** **Customer A** spent the **most ($76)**,while **Customer C** spent the **least ($36)**.
  
  **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
@@ -266,6 +267,20 @@ Click here to expand!
  
 **10.** **Customer A has 1270 points** and **Customer B had 720 points** by the **end of January 2021**.
 
+ 
+### Learnings....!!!
+ 
+After analysing this case study, I have gained a strong understanding of the following concepts:
+
+-Common Table Expressions.
+ 
+-Group By Aggregates.
+ 
+-Window Functions for ranking and row number.
+ 
+-Joins with using keyword.
+ 
+-Case Function with between and date function.
 
 
 
