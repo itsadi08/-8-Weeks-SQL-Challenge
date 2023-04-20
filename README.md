@@ -2,7 +2,7 @@
 
 This repository contains my analysis for the #8WeekSQLChallenge using MySQL and PostgreSQL.
 
-I like to thank @DataWithDanny for interesting SQL case studies!
+I like to thank @DataWithDanny for these interesting SQL case studies!
 
 Here's the link for Challenge- (https://8weeksqlchallenge.com) 
 
