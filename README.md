@@ -22,10 +22,6 @@ Here's the link for Challenge- (https://8weeksqlchallenge.com)
 
 •	Case Study #6 - Clique Bait
 
-•	Case Study #7 - Balanced Tree Clothing Co.
-
-•	Case Study #8 - Fresh Segments
-
 
 
 ## 🍜 Case Study #1 - Danny's Diner
