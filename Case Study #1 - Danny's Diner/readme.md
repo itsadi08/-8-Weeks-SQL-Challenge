@@ -244,10 +244,9 @@ from cte;
 Click here to expand!
 </summary>
 
+ <br>
 
-
-
- **1.** **Customer A** spent the **most ($76)**,while **Customer C**spent the **least ($36)**.
+ **1.** **Customer A** spent the **most ($76)**,while **Customer C** spent the **least ($36)**.
  
  **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
  
