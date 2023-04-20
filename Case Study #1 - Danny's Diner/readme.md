@@ -10,11 +10,11 @@
 
  - [Entity Relationship Diagram](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-entity-relationship-diagram)
 
- -	[Case Study Questions & Bonus Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-case-study-&amp;-bonus-questions)
+ -	[Case Study Questions and Bonus Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-case-study-and-bonus-questions)
 
  - [SQL Queries for Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-sql-queries-for-questions)
  
- -	[Insights & Learnings](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-insights-&amp;-learnings)
+ -	[Insights and Learnings](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-insights-and-learnings)
 
 ## 📝 Problem Statement
 Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns, how much money they’ve spent and also which menu items are their favourite. Having this deeper connection with his customers will help him deliver a better and more personalised experience for his loyal customers.
@@ -27,7 +27,7 @@ He plans on using these insights to help him decide whether he should expand the
  <img width="600" height="300" src="https://user-images.githubusercontent.com/121611397/233428417-6cc826cf-c4cf-4598-801f-9d507c664780.png">
 </p>
 
-## 📋 Case Study & Bonus Questions
+## 📋 Case Study and Bonus Questions
 
 1.	What is the total amount each customer spent at the restaurant?
 
@@ -222,5 +222,5 @@ from cte;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434031-c2522086-c524-4c4b-bcef-0648548f9125.png)
 
-### Insights & Learnings
+### Insights and Learnings
 
