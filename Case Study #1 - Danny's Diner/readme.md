@@ -29,6 +29,11 @@ He plans on using these insights to help him decide whether he should expand the
 
 ## 📋 Case Study and Bonus Questions
 
+<details>
+<summary>
+Click here to expand!
+</summary>
+
 1.	What is the total amount each customer spent at the restaurant?
 
 2.	How many days has each customer visited the restaurant?
@@ -55,9 +60,16 @@ He plans on using these insights to help him decide whether he should expand the
 
 2. Rank All The Things - Based on the table above, add ranking.
 
+</details>
+
 ## 🔎 SQL Queries for Questions
 
-1.	What is the total amount each customer spent at the restaurant?
+<details>
+<summary>
+Click here to expand!
+</summary>
+
+#### 1.	What is the total amount each customer spent at the restaurant?
 
 ```sql
 Select customer_id,sum(price) as Total_Amount_Spent
@@ -69,7 +81,7 @@ order by customer_id;
 ![image](https://user-images.githubusercontent.com/121611397/233430825-e0c56041-adeb-4926-8388-2fd7295e61d7.png)
 
 
-2.	How many days has each customer visited the restaurant?
+#### 2.	How many days has each customer visited the restaurant?
 
 ```sql
 Select customer_id,count(distinct order_date) as Total_Visits
@@ -80,7 +92,7 @@ order by customer_id;
 ![image](https://user-images.githubusercontent.com/121611397/233431208-3284916c-0ef5-4381-b5f9-24b56bbac99f.png)
 
 
-3.	What was the first item from the menu purchased by each customer?
+#### 3.	What was the first item from the menu purchased by each customer?
 
 ```sql
 Select customer_id,product_name from 
@@ -91,7 +103,7 @@ where rn<=1;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233431580-631e94a4-6349-4bc8-a0b7-c199a6afce8d.png)
 
-4.	What is the most purchased item on the menu and how many times was it purchased by all customers?
+#### 4.	What is the most purchased item on the menu and how many times was it purchased by all customers?
 
 ```sql
 Select product_name,count(*) as Purchased_quantity
@@ -104,7 +116,7 @@ limit 1;
 ![image](https://user-images.githubusercontent.com/121611397/233432050-e923801a-c655-4c59-8308-e1dc1aecdf8e.png)
 
 
-5.	Which item was the most popular for each customer?
+#### 5.	Which item was the most popular for each customer?
 
 ```sql
 with cte as (
@@ -120,7 +132,7 @@ where rn = 1;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233432567-708112ee-000f-4223-bc46-0d88bfefc195.png)
 
-6.	Which item was purchased first by the customer after they became a member?
+#### 6.	Which item was purchased first by the customer after they became a member?
 
 ```sql
 with cte as (select s.customer_id,product_name,order_date, rank() over(partition by s.customer_id order by order_date)rn
@@ -134,7 +146,7 @@ where rn=1;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233432897-abfaa8a8-e61f-4406-bf2b-68ac2ffd22de.png)
 
-7.	Which item was purchased just before the customer became a member?
+#### 7.	Which item was purchased just before the customer became a member?
 
 ```sql
 with cte as (select s.customer_id,max(order_date) as last_date
@@ -149,7 +161,7 @@ using (product_id);
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233433141-d9e1457b-07e1-4b91-9b28-56ca8b5c4d9d.png)
 
-8.	What is the total items and amount spent for each member before they became a member?
+#### 8.	What is the total items and amount spent for each member before they became a member?
 
 ```sql
 select s.customer_id,count(s.product_id) as total_items, sum(price) as total_amount_spent 
@@ -163,7 +175,7 @@ order by customer_id;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434547-421c03f6-273f-44b7-85ba-c35a3c2c5e5f.png)
 
-9.	If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+#### 9.	If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 
 ```sql
 with cte as (select *,case when product_name='sushi'then price*20 else price *10 end as points
@@ -177,7 +189,7 @@ order by customer_id;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434436-2f081722-a0e8-4d14-a5b4-bbf438b39548.png)
 
-10.	In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
+#### 10.	In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 
 ```sql
 with cte as (select s.customer_id,
@@ -196,7 +208,7 @@ order by customer_id;
 
 #### 🔥 Bonus Questions
 
-1. Join All The Things - Create a table that has these columns: customer_id, order_date, product_name, price, member (Y/N).
+#### 1. Join All The Things - Create a table that has these columns: customer_id, order_date, product_name, price, member (Y/N).
 
 ```sql
 select s.customer_id, s.order_date,m.product_name,m.price,
@@ -207,7 +219,7 @@ left join dannys_diner.members mb using (customer_id);
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434210-9524d3c0-e1b4-4188-a1a3-300552a9aed0.png)
 
-2. Rank All The Things - Based on the table above, add ranking.
+#### 2. Rank All The Things - Based on the table above, add ranking.
 
 ```sql
 with cte as (select s.customer_id, s.order_date,m.product_name,m.price,
@@ -222,5 +234,40 @@ from cte;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434031-c2522086-c524-4c4b-bcef-0648548f9125.png)
 
-### Insights and Learnings
+</details> 
 
+## 💡 Insights and Learnings
+
+
+<details>
+<summary>
+Click here to expand!
+</summary>
+
+
+
+
+ **1.** **Customer A** spent the **most ($76)**,while **Customer C**spent the **least ($36)**.
+ 
+ **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
+ 
+ **3.** All the **3 customers purchased different items** on their **first visit** to the diner.
+ 
+ **4.** Out of the three dishes,**Ramen** is the **most purchased item** and has been ordered **8 times**.
+ 
+ **5.** **Most popular item for Customers A & C is Ramen** whereas Customer B has ordered all the 3 items, an equal number of times.
+ 
+ **6.** **Customer A ordered curry** and **Customer B order sushi** after they became a member.
+ 
+ **7.** **Customer A ordered both sushi & curry** and **Customer B ordered curry** before they both became members.
+ 
+ **8.** **Customer A** purchased 2 items in total and **spent $25** before becoming a member. **Customer B** purchased 2 items in total and **spent $40** before               becoming a member.While **Customer C** purchased 3 items and **spent $36 without being a member**.
+         
+ **9.** **Customer B has the most 940 points**, while Customer A has 860 points  and Customer C has 360 points.
+ 
+**10.** **Customer A has 1270 points** and **Customer B had 720 points** by the **end of January 2021**.
+
+
+
+
+</details>
