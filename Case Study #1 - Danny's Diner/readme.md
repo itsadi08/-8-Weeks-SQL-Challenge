@@ -6,14 +6,15 @@
 
 ## 📕 Table of Contents
 
- •	Problem Statement
+ -	[Problem Statement](#problem-statement)   
 
- •	Entity Relationship Diagram
+ - [Entity Relationship Diagram](#entity-relationship-diagram)
 
- •	Case Study Questions & Bonus Questions
+ -	[Case Study Questions & Bonus Questions](#case-study-&-bonus-questions)
 
- •	My Analysis
-
+ - [SQL Queries for Questions](#sql-queries-for-questions)
+ 
+ -	[Insights & Learnings](#insights-&-learnings)
 
 ## 📝 Problem Statement
 Danny wants to use the data to answer a few simple questions about his customers, especially about their visiting patterns, how much money they’ve spent and also which menu items are their favourite. Having this deeper connection with his customers will help him deliver a better and more personalised experience for his loyal customers.
@@ -54,11 +55,11 @@ He plans on using these insights to help him decide whether he should expand the
 
 2. Rank All The Things - Based on the table above, add ranking.
 
-## 🔎 My Analysis
+## 🔎 SQL Queries for Questions
 
 1.	What is the total amount each customer spent at the restaurant?
 
-```bash
+```sql
 Select customer_id,sum(price) as Total_Amount_Spent
 from dannys_diner.sales s
 left join dannys_diner.menu m on m.product_id=s.product_id
@@ -70,7 +71,7 @@ order by customer_id;
 
 2.	How many days has each customer visited the restaurant?
 
-```bash
+```sql
 Select customer_id,count(distinct order_date) as Total_Visits
 from dannys_diner.sales s
 group by customer_id
@@ -81,7 +82,7 @@ order by customer_id;
 
 3.	What was the first item from the menu purchased by each customer?
 
-```bash
+```sql
 Select customer_id,product_name from 
 (select customer_id,order_date,product_name,row_number() over(partition by customer_id order by order_date,s.product_id) as rn
 from dannys_diner.sales s
@@ -92,7 +93,7 @@ where rn<=1;
 
 4.	What is the most purchased item on the menu and how many times was it purchased by all customers?
 
-```bash
+```sql
 Select product_name,count(*) as Purchased_quantity
 from dannys_diner.sales s
 join dannys_diner.menu m
@@ -105,7 +106,7 @@ limit 1;
 
 5.	Which item was the most popular for each customer?
 
-```bash
+```sql
 with cte as (
 select s.customer_id, m.product_name, count(*) as purchase_count,
 rank() over(partition by s.customer_id order by count(*) desc) as rn
@@ -121,7 +122,7 @@ where rn = 1;
 
 6.	Which item was purchased first by the customer after they became a member?
 
-```bash
+```sql
 with cte as (select s.customer_id,product_name,order_date, rank() over(partition by s.customer_id order by order_date)rn
 from dannys_diner.sales s
 left join dannys_diner.members mb on s.customer_id=mb.customer_id
@@ -135,7 +136,7 @@ where rn=1;
 
 7.	Which item was purchased just before the customer became a member?
 
-```bash
+```sql
 with cte as (select s.customer_id,max(order_date) as last_date
 from dannys_diner.sales s
 left join dannys_diner.members mb on s.customer_id=mb.customer_id
@@ -150,7 +151,7 @@ using (product_id);
 
 8.	What is the total items and amount spent for each member before they became a member?
 
-```bash
+```sql
 select s.customer_id,count(s.product_id) as total_items, sum(price) as total_amount_spent 
 from dannys_diner.sales s
 left join dannys_diner.members mb on s.customer_id=mb.customer_id
@@ -164,7 +165,7 @@ order by customer_id;
 
 9.	If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
 
-```bash
+```sql
 with cte as (select *,case when product_name='sushi'then price*20 else price *10 end as points
 from dannys_diner.menu m)
 select customer_id,sum (points)
@@ -178,7 +179,7 @@ order by customer_id;
 
 10.	In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 
-```bash
+```sql
 with cte as (select s.customer_id,
 case when order_date between join_date and join_date + interval '6 days' then price*20 else price*10 end as points
 from dannys_diner.menu m
@@ -197,7 +198,7 @@ order by customer_id;
 
 1. Join All The Things - Create a table that has these columns: customer_id, order_date, product_name, price, member (Y/N).
 
-```bash
+```sql
 select s.customer_id, s.order_date,m.product_name,m.price,
 case when s.order_date >= mb.join_date then 'Y' else 'N' end as member
 from dannys_diner.sales s
@@ -208,7 +209,7 @@ left join dannys_diner.members mb using (customer_id);
 
 2. Rank All The Things - Based on the table above, add ranking.
 
-```bash
+```sql
 with cte as (select s.customer_id, s.order_date,m.product_name,m.price,
 case when s.order_date >= mb.join_date then 'Y' else 'N' end as member
 from dannys_diner.sales s
@@ -220,3 +221,6 @@ case when member='Y' then dense_rank()over(partition by customer_id,member order
 from cte;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233434031-c2522086-c524-4c4b-bcef-0648548f9125.png)
+
+### Insights & Learnings
+
