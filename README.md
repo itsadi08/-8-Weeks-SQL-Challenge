@@ -30,8 +30,9 @@ Here's the link for Challenge- (https://8weeksqlchallenge.com)
 
 ## 🍜 Case Study #1 - Danny's Diner
 
-![image](https://user-images.githubusercontent.com/121611397/233270716-adc25de5-b22e-4011-bc9f-bd216dcabdfe.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233270716-adc25de5-b22e-4011-bc9f-bd216dcabdfe.png">
+</p>
 
 Danny is a foodie and loves Japanese cuisine, so he decided to open his own restaurant Danny’s Diner in the beginning of 2021. However, after a few months of operation, Danny is worried about the restaurant’s performance and is in need of your help.
 
@@ -44,8 +45,9 @@ Interested in helping Danny: View the case study and the solution here.
 
 ## 🍕 Case Study #2 - Pizza Runner
 
-![image](https://user-images.githubusercontent.com/121611397/233270784-838a812f-8ec5-4034-b5d1-1b86ce26661a.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233270784-838a812f-8ec5-4034-b5d1-1b86ce26661a.png">
+</p>
 
 Danny was scrolling through Instagram when he stumbled upon a post that combined 80s retro styling with pizza. He knew he had found his calling - to start a pizza delivery service that was both stylish and efficient. And so, Pizza Runner was born.
 
@@ -56,8 +58,9 @@ Here's how you can help Danny: View the case study and the solution here.
 
 ##  🎥🍐 Case Study #3 - Foodie-Fi
 
-![image](https://user-images.githubusercontent.com/121611397/233270841-718d3436-7ddd-4d7a-af9d-96af341a183f.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233270841-718d3436-7ddd-4d7a-af9d-96af341a183f.png">
+</p>
 
 Danny saw a gap in the market for a food-only streaming service and launched Foodie-Fi in 2020. With a team of smart friends, he started selling monthly and annual subscriptions, giving customers unlimited on-demand access to exclusive food videos from around the world.
 
@@ -67,9 +70,9 @@ Help Danny take Foodie-Fi to the next level with your data analysis skills: View
 
 ## 📊 Case Study #4 - Data Bank
 
-
-![image](https://user-images.githubusercontent.com/121611397/233270900-d6783e4b-cf7a-46b5-ac22-d3afad99d15e.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233270900-d6783e4b-cf7a-46b5-ac22-d3afad99d15e.png">
+</p>
 
 Danny saw an opportunity to combine the growing trend of neo-banks and cryptocurrency with the world of data storage. And thus, Data Bank was born - a digital bank with the world's most secure distributed data storage platform.
 
@@ -84,9 +87,9 @@ Check out the case study here and the solution here.
 
 ##  🏬 Case Study #5 - Data Mart
 
-
-![image](https://user-images.githubusercontent.com/121611397/233270969-39d14647-dda5-44f3-b4aa-f1ab0505d4dc.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233270969-39d14647-dda5-44f3-b4aa-f1ab0505d4dc.png">
+</p>
 
 Data Mart is a fresh produce online supermarket owned by Danny. After making significant supply changes in June 2020 to sustainable packaging methods for all their products, Danny needs help analyzing the impact on sales performance for Data Mart and its business areas. 
 
@@ -97,9 +100,9 @@ Check out the case study here and the solution here.
 
 ## 🐟 Case Study #6 - Clique Bait
 
-
-![image](https://user-images.githubusercontent.com/121611397/233271033-291069fd-b10b-47e9-99e6-cfc2a5593b6e.png)
-
+<p align ="center">
+ <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233271033-291069fd-b10b-47e9-99e6-cfc2a5593b6e.png">
+</p>
 
 Clique Bait is not your regular seafood store - founded by a data analytics expert, Danny, he's on a mission to revolutionize the seafood industry. 
 
