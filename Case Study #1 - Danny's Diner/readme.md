@@ -6,7 +6,7 @@
 
 ## 📕 Table of Contents
 
- -	[Problem Statement](##Problem-Statement)   
+ -	[Problem Statement](https://github.com/itsadi08/8-Weeks-SQL-Challenge/edit/main/Case%20Study%20%231%20-%20Danny's%20Diner/read.me.md-problem-statement)   
 
  - [Entity Relationship Diagram](#Entity-Relationship-Diagram)
 
