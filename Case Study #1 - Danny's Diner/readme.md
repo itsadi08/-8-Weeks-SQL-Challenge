@@ -6,11 +6,11 @@
 
 ## 📕 Table of Contents
 
- -	[Problem Statement](#problem-statement)   
+ -	[Problem Statement](#Problem-Statement)   
 
- - [Entity Relationship Diagram](#entity-relationship-diagram)
+ - [Entity Relationship Diagram](#Entity-Relationship-Diagram)
 
- -	[Case Study Questions & Bonus Questions](#case-study-&-bonus-questions)
+ -	[Case Study Questions & Bonus Questions](#Case-Study-&-Bonus-Questions)
 
  - [SQL Queries for Questions](#sql-queries-for-questions)
  
