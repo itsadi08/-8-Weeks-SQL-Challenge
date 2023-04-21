@@ -46,7 +46,8 @@ Click here to expand!
 </summary>
   
 ### A. Data Cleansing Steps
-View my solution [HERE](https://github.com/qanhnn12/8-Week-SQL-Challenge/blob/main/Case%20Study%20%235%20-%20Data%20Mart/Solution/A.%20Data%20Cleansing%20Steps.md).
+
+View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-data-cleansing-steps).
   
 In a single query, perform the following operations and generate a new table in the ```data_mart``` schema named ```clean_weekly_sales```:
   * Convert the ```week_date``` to a ```DATE``` format
