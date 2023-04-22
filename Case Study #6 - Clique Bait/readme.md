@@ -383,90 +383,79 @@ select round(avg(Purchased*100/Add_to_Cart),2) as Conversion_rate from product_s
  ![image](https://user-images.githubusercontent.com/121611397/233770414-222224b7-28c2-45cb-a97b-eff673e99fd2.png)
 
 ---  
+ ## C. Campaigns Analysis
+Generate a table that has 1 single row for every unique visit_id record and has the following columns:
+  * `user_id`
+  * `visit_id`
+  * `visit_start_time`: the earliest event_time for each visit
+  * `page_views`: count of page views for each visit
+  * `art_adds`: count of product cart add events for each visit
+  * `purchase`: 1/0 flag if a purchase event exists for each visit
+  * `campaign_name`: map the visit to a campaign if the visit_start_time falls between the start_date and end_date
+  * `impression`: count of ad impressions for each visit
+  * `click`: count of ad clicks for each visit
+  * (Optional column) `cart_products`: a comma separated text value with 
+  products added to the cart sorted by the order they were added to the cart (hint: use the `sequence_number`)
+ 
+ ```sql
+ DROP TEMPORARY TABLE IF EXISTS campaigns_analysis;
+CREATE TEMPORARY TABLE campaigns_analysis
+select 
+user_id,
+visit_id,
+min(event_time) as visit_start_time,
+sum(case when event_name='Page View' then 1 else 0 end ) as page_views,
+sum(case when event_name='Add to Cart' then 1 else 0 end ) as cart_adds,
+sum(case when event_name='Purchase' then 1 else 0 end ) as purchase,
+campaign_name,
+sum(case when event_name='Ad Impression' then 1 else 0 end ) as impression,
+sum(case when event_name='Ad Click' then 1 else 0 end ) as click,
+group_concat(case when event_name = 'Add to Cart' then page_name end order by sequence_number separator ', ') as cart_products
+from events 
+join users using (cookie_id)
+join event_identifier using (event_type)
+join page_hierarchy using (page_id)
+left join campaign_identifier c 
+on event_time between c.start_date and c.end_date
+group by user_id, visit_id, campaign_name;
+```
+ First 12 rows out of 3,564 rows in total:-
+ 
+ ![image](https://user-images.githubusercontent.com/121611397/233770692-d7d88b09-002a-4694-be11-a00aed0b4718.png)
+
+ 
+ ---
 ## 🔥 Bonus Questions
 
-### Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
-  
-  * ```region```
-  * ```platform```
-  * ```age_band```
-  * ```demographic```
-  * ```customer_type```
+ Some ideas to investigate further include:
 
- #### 1. Sales changes by ```regions```
-  
-```sql
-with cte as(select region,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by region)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233738525-2f67ae7d-6b1f-42ff-a5b8-c426dd4aec02.png)
 
-#### 2. Sales changes by ```platform```
-
-```sql
-with cte as(select platform,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by platform)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233738891-abf09ccf-d5f2-4fc6-98ce-18b60a9ee951.png)
-
-#### 3. Sales changes by ```age_band```
-  
+ #### 1. Identifying users who have received impressions during each campaign period and comparing each metric with other users who did not have an impression event.
+   
   ```sql
-with cte as(select age_band,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by age_band)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233738994-22be9f22-d38d-4a7b-881f-c0b89c293bef.png)
+ 
+ 
+ 
+ 
+ 
+  ```
+ #### 2. Does clicking on an impression lead to higher purchase rates?
+   
+ 
+ 
+ 
+ 
+ 
+ #### 3. What is the uplift in purchase rate when comparing users who click on a campaign impression versus users who do not receive an impression? What if we compare          them with users who have just an impression but do not click?
+   
+ 
+ 
+ 
+ 
+ #### 4. What metrics can you use to quantify the success or failure of each campaign compared to each other?
+ 
   
-#### 4. Sales changes by ```demographic```
-  
- ```sql
-with cte as(select demographic,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by demographic)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233739063-a189016a-7643-405b-9ab0-7edb70598403.png) 
-  
-#### 5. Sales changes by ```customer_type```
-  
-  ```sql
-with cte as(select customer_type,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by customer_type)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233739135-cfe57b93-439a-409f-b5bf-8fd6868eb20d.png)
+
   
 </details> 
   
