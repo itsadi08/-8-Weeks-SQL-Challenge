@@ -46,8 +46,6 @@ Click here to expand!
 </summary>
   
 ### A. Data Cleansing Steps
-
-View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-data-cleansing-steps).
   
 In a single query, perform the following operations and generate a new table in the ```data_mart``` schema named ```clean_weekly_sales```:
   * Convert the ```week_date``` to a ```DATE``` format
@@ -74,7 +72,6 @@ In a single query, perform the following operations and generate a new table in 
 
 ---
 ### B. Data Exploration
-View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-data-exploration).
   
 1. What day of the week is used for each ```week_date``` value?
 2. What range of week numbers are missing from the dataset?
@@ -88,7 +85,6 @@ View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/m
 
 ---
 ### c. Before & After Analysis
-View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-before-and-after-analysis)
   
 This technique is usually used when we inspect an important event and want to inspect the impact before and after a certain point in time.
 Taking the week_date value of 2020-06-15 as the baseline week where the Data Mart sustainable packaging changes came into effect.
@@ -103,8 +99,6 @@ Using this analysis approach - answer the following questions:
 ---
 
 ### D. Bonus Questions
-
-View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-bonus-questions)
 
 1. Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
   * ```region```
@@ -124,7 +118,7 @@ View my solution [HERE](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/m
 Click here to expand!
 </summary>
 
-## Data Cleansing Steps
+## A. Data Cleansing Steps
 
 In a single query, perform the following operations and generate a new table in the ```data_mart``` schema named ```clean_weekly_sales```:
   * Convert the ```week_date``` to a ```DATE``` format
@@ -200,7 +194,7 @@ modify column sales bigint;
 ![image](https://user-images.githubusercontent.com/121611397/233733216-bc5bc61f-845b-49ac-894b-9a428a86b59a.png)
   
 ---
-## Data Exploration
+## B. Data Exploration
 
 #### 1. What day of the week is used for each week_date value?
 
@@ -320,7 +314,7 @@ order by  year_, platform;
 ![image](https://user-images.githubusercontent.com/121611397/233735782-c0b20208-b92e-4674-a2d5-77b98c8f648c.png)
   
 ---
-##  Before and After Analysis
+## C. Before and After Analysis
 
 This technique is usually used when we inspect an important event and want to inspect the impact before and after a certain point in time. 
 Taking the week_date value of 2020-06-15 as the baseline week where the Data Mart sustainable packaging changes came into effect. 
