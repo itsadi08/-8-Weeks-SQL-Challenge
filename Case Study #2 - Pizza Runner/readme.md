@@ -24,14 +24,14 @@ The objective of this case study is to optimize the operations of Pizza Runner, 
 ## 🔐 Entity Relationship Diagram
 
 <p align ="center">
- <img width="300" height="350" src="https://user-images.githubusercontent.com/121611397/233772164-adab2253-58aa-495b-b1a8-f228ebbb3d00.png">
+ <img width="700" height="350" src="https://user-images.githubusercontent.com/121611397/233772164-adab2253-58aa-495b-b1a8-f228ebbb3d00.png">
 </p>
 
 The columns are pretty self-explanatory based on the column names but here are some further details about the dataset:
 
 - The runners table shows the registration_date for each new runner.
 
--The customer_orders table captures pizza orders with pizza_id, exclusions, and extras columns. Customers can order multiple pizzas with varying exclusions and extras values, requiring data cleanup before using in queries.
+- The customer_orders table captures pizza orders with pizza_id, exclusions, and extras columns. Customers can order multiple pizzas with varying exclusions and extras values, requiring data cleanup before using in queries.
 
 - The runner_orders table in Pizza Runner captures the assignment of each order to a runner, along with pickup time, distance, and duration of the delivery.
 
@@ -48,7 +48,7 @@ The columns are pretty self-explanatory based on the column names but here are s
 Click here to expand!
 </summary>
   
-### ### A. Pizza Metrics
+### A. Pizza Metrics
 
 1. How many pizzas were ordered?
 2. How many unique customer orders were made?
@@ -113,7 +113,7 @@ Click here to expand!
 If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an ```INSERT``` statement to demonstrate what would happen if a new ```Supreme``` pizza with all the toppings was added to the Pizza Runner menu?
 
 ---
-
+	
 </details>
 
 ## 🔎 SQL Queries for Questions
@@ -123,81 +123,173 @@ If Danny wants to expand his range of pizzas - how would this impact the existin
 Click here to expand!
 </summary>
 
-## A. Data Cleansing Steps
+## A. Pizza Metrics
+	
+### Data cleaning
+  
+  * Create a new table ```#customer_ordersnew``` from ```customer_orders``` table:
+	
+  	* Convert the ```blank``` text values in ```exclusions``` and ```extras``` into null ```''```.
 
-In a single query, perform the following operations and generate a new table in the ```data_mart``` schema named ```clean_weekly_sales```:
-  * Convert the ```week_date``` to a ```DATE``` format
-  * Add a ```week_number``` as the second column for each ```week_date``` value, for example any value from the 1st of January to 7th of January will be 1, 8th to 14th will be 2 etc
-  * Add a ```month_number``` with the calendar month for each ```week_date``` value as the 3rd column
-  * Add a ```calendar_year``` column as the 4th column containing either 2018, 2019 or 2020 values
-  * Add a new column called ```age_band``` after the original ```segment``` column using the following mapping on the number inside the ```segment``` value
+```sql	
+drop table if exists customer_ordersnew;
+create table customer_ordersnew as
+(select order_id, customer_id, pizza_id, exclusions, extras, order_time 
+from customer_orders);
+								 
+update customer_ordersnew
+set exclusions=case when exclusions ='No Record' then null else exclusions end,
+extras=case when extras='No Record' then null else extras end;
+```
+![image](https://user-images.githubusercontent.com/121611397/233773193-3adb31fe-89ae-432a-b9dd-5898ce9dce5e.png)
 
-| Segment | age_band     |
-|--------|--------------|
-| 1      | Young Adults |
-| 2      | Middle Aged  |
-| 3 or 4 | Retirees     |
-  
-  * Add a new ```demographic``` column using the following mapping for the first letter in the ```segment``` values
-  
-| segment | demographic |
-|---------|-------------|
-| C       | Couples     |
-| F       | Families    |
-  
-  * Ensure all ```null``` string values with an ```"unknown"``` string value in the original ```segment``` column as well as the new ```age_band``` and ```demographic``` columns
-  * Generate a new ```avg_transaction``` column as the sales value divided by ```transactions``` rounded to 2 decimal places for each record
+
+  * Create a new table ```runner_ordersnew``` from ```runner_orders``` table:
+  	* Convert ```'null'``` text values in ```pickup_time```, ```duration```,```distance``` and ```cancellation``` into ```null``` values. 
+	* Cast ```pickup_time``` to TIMESTAMP.
+	* Cast ```distance``` to FLOAT.
+	* Cast ```duration``` to INT.
+	
+```sql	
+
+drop table if exists runner_ordersnew;
+create table runner_ordersnew as 
+(select order_id, runner_id, pickup_time,
+case
+ when distance like '%km' then trim('km' from distance)else distance end as distance,
+case
+ when duration like '%minutes' then trim('minutes' from duration)
+ when duration like '%mins' then trim('mins' from duration)
+ when duration like '%minute' then trim('minute' from duration)
+else duration end as duration, 
+cancellation 
+from runner_orders);
+
+update runner_ordersnew
+set pickup_time = case when pickup_time ='null' then null  else pickup_time end,
+distance = case  when distance= 'null' then null else distance end,
+duration = case  when duration ='null' then null else duration end,
+cancellation = case when cancellation ='null' then null else cancellation end,
+
+update runner_ordersnew
+set cancellation = case when cancellation ='' then null else cancellation end;
+
+alter table runner_ordersnew
+alter column pickup_time type timestamp USING TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:SS'),
+alter column distance type decimal USING CAST(distance AS DECIMAL),
+alter column duration type int USING CAST(duration AS int) ;
+```
+	
+![image](https://user-images.githubusercontent.com/121611397/233773272-e6348049-c168-4e85-98b1-4cd55d927027.png)
 
 ---
-  
+ 
+### Q1. How many pizzas were ordered? 
+	
 ```sql
-  
-  -- Alter exisitng table for date formating
-  
-alter table weekly_sales
-modify week_date varchar(15);
-update weekly_sales
-set week_date=str_to_date(week_date,"%d/%m/%Y");
-
-  -- Create a new table named cleaned_weekly_sales
-  
-drop table if exists cleaned_weekly_sales;
-create table cleaned_weekly_sales
-select
-date_format(week_date,'%Y-%m-%d') as week_date,
-extract(week from week_date+ interval 1 week ) as Week_,
-extract(month from week_date) as Month_,  
-extract(year from week_date) as Year_, 
-region,
-platform,
-segment,
-customer_type,
-case
-	when Right(segment,1)='1' then 'Young Adults'
-    when Right(segment,1)='2' then 'Middle Aged'
-    when Right(segment,1) in ('3','4') then 'Retirees'
-    else 'Unknown' 
-    end as age_band,
-case
-    when left(segment,1)='C' then 'Couples'
-    when left(segment,1)='F' then 'Families'
-    else 'Unknown' end as demographic,
-transactions,
-sales,
-round(sales/transactions,2) as avg_transaction
-from weekly_sales;
-
-  --Lastly alter other columns for further calculations to come.
-  
-alter table cleaned_weekly_sales
-modify column week_date date;
-alter table cleaned_weekly_sales
-modify column sales bigint;
+ select count(order_id)as Total_Pizzas_Ordered from customer_ordersnew; 
 ```
-- First 10 rows of the generated table.
+![image](https://user-images.githubusercontent.com/121611397/233773752-41aa619c-dc24-4b9b-b9d5-f1a9e30227f1.png)
   
-![image](https://user-images.githubusercontent.com/121611397/233733216-bc5bc61f-845b-49ac-894b-9a428a86b59a.png)
-  
+### Q2. How many unique customer orders were made?
+	
+```sql
+ select count(distinct order_id)as Total_Orders from customer_ordersnew;
+```	
+![image](https://user-images.githubusercontent.com/121611397/233773960-73e89869-250b-4f45-b798-6a651b60a28f.png)
+	
+### Q3. How many successful orders were delivered by each runner? 
+	
+```sql
+select runner_id,count(order_id) as Successful_orders from runner_ordersnew
+where cancellation is null
+group by runner_id;
+```
+![image](https://user-images.githubusercontent.com/121611397/233773988-14294256-b1f0-4e34-b295-e56ee343b9e0.png)
+	
+### Q4. How many of each type of pizza was delivered? 
+	
+```sql
+select pizza_name,count(pizza_id) as No_of_Pizzas from customer_ordersnew
+join pizza_names using (pizza_id)
+join runner_ordersnew  using(order_id)
+where cancellation is null
+group by pizza_name; 
+```	
+![image](https://user-images.githubusercontent.com/121611397/233774028-ff06172f-d56d-4f88-8dee-c5372073b236.png)
+	
+### Q5 How many Vegetarian and Meatlovers were ordered by each customer?
+	
+```sql	
+select customer_id,pizza_name,count(pizza_id) as No_of_Pizzas from customer_ordersnew
+join pizza_names using (pizza_id)
+join runner_ordersnew  using(order_id)
+where cancellation is null
+group by customer_id,pizza_name;	
+```	
+![image](https://user-images.githubusercontent.com/121611397/233774169-83b5407e-6b9b-4912-8c6c-6e8aaeb3495b.png)
+	
+### Q6 What was the maximum number of pizzas delivered in a single order?
+
+```sql	
+select order_id ,count(pizza_id) as No_of_Pizzas_Ordered from customer_ordersnew
+join runner_ordersnew  using(order_id)
+group by order_id 
+order by No_of_Pizzas_Ordered desc
+limit 1;
+```
+![image](https://user-images.githubusercontent.com/121611397/233774190-21e04f3d-a3ee-40e6-be34-0de32239c770.png)
+	
+### Q7 For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+
+```sql
+select customer_id,count(order_id)as total_orders,sum(case when exclusions is not null or extras is not null then 1 
+else 0 end )as AleastOneChange,sum(case when exclusions is null and extras is null then 1 
+else 0 end )as NoChange
+from customer_ordersnew 
+join runner_ordersnew  using(order_id)
+where cancellation is null   
+group by customer_id;
+```
+![image](https://user-images.githubusercontent.com/121611397/233774213-81d22b49-08e1-4d8f-9abd-76a4a7e2caf9.png)
+	
+### Q8 How many pizzas were delivered that had both exclusions and extras?
+	
+```sql
+select count(pizza_id) as Exclusion_Extra_Pizza
+from customer_ordersnew 
+join runner_ordersnew  using(order_id)
+where exclusions is not null and extras is not null and cancellation is null
+```
+![image](https://user-images.githubusercontent.com/121611397/233774356-3c643fce-2379-44be-9c19-766961b3c06b.png)
+	
+### Q9 What was the total volume of pizzas ordered for each hour of the day?
+	
+```sql	
+select extract (hour from order_time) as hour,count(order_id)as Total_Pizzas from customer_ordersnew
+group by extract (hour from order_time)
+order by extract (hour from order_time)
+```
+![image](https://user-images.githubusercontent.com/121611397/233774378-90027b3e-5e2d-4f3b-a917-308a3b805955.png)
+	
+### Q10 What was the volume of orders for each day of the week?
+	
+```sql	
+select to_char(order_time,'Day') as DailyData,count(order_id)as Total_Pizzas from customer_ordersnew
+group by to_char(order_time,'Day')
+order by Total_Pizzas desc
+```	
+![image](https://user-images.githubusercontent.com/121611397/233774434-e80aaf30-29a2-447e-8151-89455a1d57c6.png)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 ---
 ## B. Data Exploration
 
