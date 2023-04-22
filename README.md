@@ -34,7 +34,7 @@ Alright, listen up foodies! Our man Danny is a Japanese cuisine lover who decide
 
 Danny's captured some basic data about his customers, but he's not sure how to use it to improve his business. So let's dig in and help him out! We need to answer some key questions, like when customers visit, how much they're spending, and which menu items they can't get enough of. With our expert analysis, we can help Danny turn his diner into a hot spot for Japanese food lovers everywhere. So let's get to work and show Danny some love for his passion!
 
-Interested in helping Danny: View the case study and the solution here.
+Interested in helping Danny: View the [case study](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diners/README.md) and the [solution here](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-sql-queries-for-questions).
 
 
 ## 🍕 Case Study #2 - Pizza Runner
