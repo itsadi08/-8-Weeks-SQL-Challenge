@@ -281,158 +281,96 @@ order by Total_Pizzas desc
 ```	
 ![image](https://user-images.githubusercontent.com/121611397/233774434-e80aaf30-29a2-447e-8151-89455a1d57c6.png)
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 ---
-## B. Data Exploration
-
-#### 1. What day of the week is used for each week_date value?
+## B. Runner and Customer Experience
+	
+### Q1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
 
 ```sql
+select extract(week from registration_date+interval '1 week') as Week_number,count(runner_id) as Total_Registration
+from runners
+group by extract(week from registration_date+interval '1 week')
+order by Week_number;
+```
+![image](https://user-images.githubusercontent.com/121611397/233777072-9e228cfd-3ba4-4e6f-9d1e-750111048f24.png)
+
+### Q2 What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+
+```sql
+with cte as(select runner_id,avg(pickup_time-order_time) as Avg_time from runner_ordersnew
+join customer_ordersnew using (order_id)
+group by runner_id)
+select runner_id, round(extract(minutes from Avg_time),2) as Avg_time_ from cte;
+
+![image](https://user-images.githubusercontent.com/121611397/233777099-1db64006-28dc-4807-a22d-9f9f93e8c584.png)	
+	
+### Q3 Is there any relationship between the number of pizzas and how long the order takes to prepare?
+	
+```sql
+with cte as(select order_id,count(order_id) as  total_pizza,avg(pickup_time-order_time) as Prep_time from runner_ordersnew
+join customer_ordersnew using (order_id)
+where cancellation is null
+group by order_id)	
+select total_pizza, round(avg(extract(minutes from Prep_time)),0) as Avg_time_ from cte 
+group by total_pizza;
+```
+![image](https://user-images.githubusercontent.com/121611397/233777148-3e7671f4-3bf6-48b5-aff2-1a7846d30992.png)	
+
+### Q4 What was the average distance travelled for each customer?
+	
+```sql
+select customer_id,round(avg(distance),2) as Average_Distance_Travelled_inKM from runner_ordersnew
+join customer_ordersnew using (order_id)
+group by customer_id
+order by customer_id;
+```
+![image](https://user-images.githubusercontent.com/121611397/233777180-ba90b8f9-6854-4101-9b9a-56a3a5d6645a.png)
+
+### Q5 What was the difference between the longest and shortest delivery times for all orders?
+	
+```sql
+select max(duration)as slowest_delivery_time,min(duration) as fastest_delivery_time,
+max(duration)- min(duration) as Difference from runner_ordersnew;
+```
+![image](https://user-images.githubusercontent.com/121611397/233777232-3410cb48-2a8d-40d8-bc9e-ab4cd981fa5f.png)
+
+### Q6 What was the average speed for each runner for each delivery and do you notice any trend for these values?
+	
+```sql	
+select order_id,runner_id,round(avg (distance*60/duration),2) as Speed_kmph from runner_ordersnew
+where distance<>0
+group by order_id,runner_id
+order by order_id;	
+```
+![image](https://user-images.githubusercontent.com/121611397/233777254-cd04dedc-4a7a-49fd-bd7d-eecde7cca85b.png)
+	
+### Q7 What is the successful delivery percentage for each runner?
+	
+```sql	
+select runner_id,concat(count(distance)*100/count(order_id),'%') as Delivery_percentage 
+from runner_ordersnew
+group by runner_id
+order by runner_id
 select distinct(date_format(week_date, '%W')) as dayofweek from cleaned_weekly_sales;
 ```
-![image](https://user-images.githubusercontent.com/121611397/233733854-c320cfa3-777b-476e-9b79-8d9968487a83.png)
+![image](https://user-images.githubusercontent.com/121611397/233777271-ef6b4a6d-b014-443a-9ef1-b4411bbf685e.png)
 
-
-#### 2. What range of week numbers are missing from the dataset?
-
-```sql
-with recursive week_num as  (
-select 1 as num
-union all
-select 1+num 
-from week_num
-where num<52) 
-select group_concat(num separator '; ') as missing_weeks , count(num) as total_miss_weeks from week_num wn
-left join cleaned_weekly_sales cws on wn.num=cws.Week_
-where Week_ is null
-order by num;
-```
-![image](https://user-images.githubusercontent.com/121611397/233734062-705b6287-5276-4154-ac84-527733525ea9.png)
-
-#### 3. How many total transactions were there for each year in the dataset?
-
-```sql
-select year(week_date) as Year_,count(transactions) as Total_transactions from cleaned_weekly_sales
-group by year(week_date);
-```
-![image](https://user-images.githubusercontent.com/121611397/233734571-c503d6d5-9133-4bf5-ab04-9d8f72a188aa.png)
-
-
-#### 4. What is the total sales for each region for each month?
-
-```sql
-select region,monthname(week_date) as Month_,sum(sales) as Total_sales from cleaned_weekly_sales
-group by region,monthname(week_date)
-order by region;
-```
- - Showing 10 out 49 rows in total.
-              
-![image](https://user-images.githubusercontent.com/121611397/233734864-3a06a7ab-3b14-4628-a1ce-ee8755b4b598.png)
-
-#### 5. What is the total count of transactions for each platform?
-
-```sql
-select platform,count(transactions) as Total_transactions from cleaned_weekly_sales
-group by platform;
-```
-![image](https://user-images.githubusercontent.com/121611397/233735055-cb63c36c-ac39-42e9-b638-b7dc8fa8c3a7.png)
-
-#### 6. What is the percentage of sales for Retail vs Shopify for each month?
-
-```sql
-with cte as(
-select monthname(week_date) as Month,Year_,platform,sum(sales) as Monthly_sales
-from cleaned_weekly_sales
-group by Month,Year_,platform)
-select 
-Year_,Month,
-round(max(case when platform='Retail' then Monthly_sales end)*100/sum(Monthly_sales),2) as pct_sales_Retail,
-round(max(case when platform='Shopify' then Monthly_sales end)*100/sum(Monthly_sales),2) as pct_sales_Shopify
-from cte
-group by Year_,Month
-order by Year_,Month;
-```
-- Showing 11 out 20 rows in total.
-              
-![image](https://user-images.githubusercontent.com/121611397/233735465-8df8db18-3ce7-4946-98f8-4afb4b8e797c.png)
-
-#### 7. What is the percentage of sales by demographic for each year in the dataset?
-
-```sql
-with cte as(
-select Year_,demographic,sum(sales) as Yearly_sales
-from cleaned_weekly_sales
-group by Year_,demographic)
-select 
-Year_,
-round(max(case when demographic='Couples' then Yearly_sales end)*100/sum(Yearly_sales),2) as Couples_pct_sales,
-round(max(case when demographic='Families' then Yearly_sales end)*100/sum(Yearly_sales),2) as Families_pct_sales,
-round(max(case when demographic='Unknown' then Yearly_sales end)*100/sum(Yearly_sales),2) as Unknown_pct_sales
-from cte
-group by Year_
-order by Year_;
-```
-![image](https://user-images.githubusercontent.com/121611397/233735613-e3d306e8-ee19-40a4-b346-c1e6bc3c4857.png)
-
-#### 8. Which age_band and demographic values contribute the most to Retail sales?
-
-```sql
-select age_band,demographic,sum(sales) total_sales,round(sum(sales)*100/(select sum(sales) from cleaned_weekly_sales where platform='Retail'),2) as pct_sales
-from cleaned_weekly_sales
-where platform='Retail'
-group by age_band,demographic
-order by total_sales desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233735677-33b917b0-b563-4860-9fe5-296e732b5830.png)
-  
-#### 9. Can we use the avg_transaction column to find the average transaction size for each year for Retail vs Shopify? If not - how would you calculate it instead?
-  
-Hence, we can not use avg_transaction column to find the average transaction size for each year and sales platform, because while calculating the average of the resultant averages we are giving equal weightage to all the average values but in reality all the columns have different weightage so it's better to calculate the sum of all the sales and divide it by total transactions.
-  Example:-
-  
-  ![image](https://user-images.githubusercontent.com/121611397/233737168-f592dd5f-ac1c-4e27-9bec-d255b31b6308.png)
-
-  
-```sql
-select year_, platform, round(avg(avg_transaction),2) as avg_transaction_col,
-round(sum(sales)/sum(transactions),2) as avg_transaction_group
-from cleaned_weekly_sales
-group by year_, platform
-order by  year_, platform;
-```
-![image](https://user-images.githubusercontent.com/121611397/233735782-c0b20208-b92e-4674-a2d5-77b98c8f648c.png)
-  
 ---
-## C. Before and After Analysis
-
-This technique is usually used when we inspect an important event and want to inspect the impact before and after a certain point in time. 
-Taking the week_date value of 2020-06-15 as the baseline week where the Data Mart sustainable packaging changes came into effect. 
-We would include all week_date values for 2020-06-15 as the start of the period after the change and the previous week_date values would be before.
-
-Using this analysis approach - answer the following questions:
-  
-#### 1. What is the total sales for the 4 weeks before and after 2020-06-15? What is the growth or reduction rate in actual values and percentage of sales?
+## C. Ingredient Optimisation
+	
+### Data cleaning
+	
+** Create a new table ```pizza_recipesnew``` to separate ```toppings``` into multiple rows**
   
   ```sql
-with cte as(select 
-sum(case when week_ between '21' and '24' then sales end) as before_weeks,
-sum(case when week_ between '25' and '28' then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020')
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+create table pizza_recipesnew (pizza_id integer,toppings integer);
+INSERT INTO pizza_recipesnew (pizza_id, toppings)
+  VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 8), (1, 10),
+  (2, 4), (2, 6), (2, 7), (2, 9), (2, 11), (2, 12);
 ```
- ![image](https://user-images.githubusercontent.com/121611397/233737587-e7ccc3c7-37ef-4b1c-be9e-3c7c5caadc30.png)
+ ![image](https://user-images.githubusercontent.com/121611397/233777515-140cc83d-a9a6-401d-b873-44ba4c212f53.png)
 
- #### 2. What about the entire 12 weeks before and after?
+### Q1. What are the standard ingredients for each pizza?
   
 ```sql
 set @week_change=25
@@ -444,12 +382,9 @@ where Year_='2020')
 select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
 from cte;
 ```
- ![image](https://user-images.githubusercontent.com/121611397/233737885-cdf15025-aa57-4905-a1f1-6ffdcd73bf2d.png)
 
   
- #### 3. How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
-  
- - For 4 weeks before and after 2020-06-15.
+ ### Q2. What was the most commonly added extra?
   
  ```sql
 with cte as(select Year_ ,
@@ -460,9 +395,9 @@ group by Year_)
 select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
 from cte;
  ```
- ![image](https://user-images.githubusercontent.com/121611397/233738060-6f0530f5-c67a-43fd-b31e-3e7d282b15c5.png)
+
  
- - For 12 weeks before and after 2020-06-15.
+### Q3. What was the most common exclusion?
   
 ```sql
 with cte as(select Year_,
@@ -473,93 +408,198 @@ group by Year_)
 select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
 from cte;
 ```
-  ![image](https://user-images.githubusercontent.com/121611397/233738194-e549fb76-65d8-4a58-a152-7022895c0adf.png)
-  
+
+ 
+### Q4.Generate an order item for each record in the ```customers_orders``` table in the format of one of the following
+* ```Meat Lovers```
+* ```Meat Lovers - Exclude Beef```
+* ```Meat Lovers - Extra Bacon```
+* ```Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers```
+	
+```sql
+with cte as(select Year_,
+sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
+sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
+from cleaned_weekly_sales
+group by Year_)
+select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
+from cte;
+```
+  	
+### Q5. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the ```customer_orders``` table and add a 2x in front of any relevant ingredients.
+* For example: ```"Meat Lovers: 2xBacon, Beef, ... , Salami"```	
+	
+```sql
+with cte as(select Year_,
+sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
+sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
+from cleaned_weekly_sales
+group by Year_)
+select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
+from cte;
+```
+	
+### Q6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
+	
+```sql
+with cte as(select Year_,
+sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
+sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
+from cleaned_weekly_sales
+group by Year_)
+select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
+from cte;
+```	
+	
 ---  
+## D. Pricing and Ratings
+### Q1. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
+
+```TSQL
+SELECT
+  SUM(CASE WHEN p.pizza_name = 'Meatlovers' THEN 12
+        ELSE 10 END) AS money_earned
+FROM #customer_orders_temp c
+JOIN pizza_names p
+  ON c.pizza_id = p.pizza_id
+JOIN #runner_orders_temp r
+  ON c.order_id = r.order_id
+WHERE r.cancellation IS NULL;
+```
+| money_earned  |
+|---------------|
+| 138           |
+
+---
+### Q2. What if there was an additional $1 charge for any pizza extras?
+* Add cheese is $1 extra
+```TSQL
+DECLARE @basecost INT
+SET @basecost = 138 	-- @basecost = result of the previous question
+
+SELECT 
+  @basecost + SUM(CASE WHEN p.topping_name = 'Cheese' THEN 2
+		  ELSE 1 END) updated_money
+FROM #extrasBreak e
+JOIN pizza_toppings p
+  ON e.extra_id = p.topping_id;
+```
+| updated_money  |
+|----------------|
+| 145            |
+
+---
+### Q3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
+```TSQL
+DROP TABLE IF EXISTS ratings
+CREATE TABLE ratings (
+  order_id INT,
+  rating INT);
+INSERT INTO ratings (order_id, rating)
+VALUES 
+  (1,3),
+  (2,5),
+  (3,3),
+  (4,1),
+  (5,5),
+  (7,3),
+  (8,4),
+  (10,3);
+
+ SELECT *
+ FROM ratings;
+ ```
+| order_id | rating  |
+|----------|---------|
+| 1        | 3       |
+| 2        | 5       |
+| 3        | 3       |
+| 4        | 1       |
+| 5        | 5       |
+| 7        | 3       |
+| 8        | 4       |
+| 10       | 3       |
+
+---
+### Q4. Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
+* ```customer_id```
+* ```order_id```
+* ```runner_id```
+* ```rating```
+* ```order_time```
+* ```pickup_time```
+* Time between order and pickup
+* Delivery duration
+* Average speed
+* Total number of pizzas
+
+```TSQL
+SELECT 
+  c.customer_id,
+  c.order_id,
+  r.runner_id,
+  c.order_time,
+  r.pickup_time,
+  DATEDIFF(MINUTE, c.order_time, r.pickup_time) AS mins_difference,
+  r.duration,
+  ROUND(AVG(r.distance/r.duration*60), 1) AS avg_speed,
+  COUNT(c.order_id) AS pizza_count
+FROM #customer_orders_temp c
+JOIN #runner_orders_temp r 
+  ON r.order_id = c.order_id
+GROUP BY 
+  c.customer_id,
+  c.order_id,
+  r.runner_id,
+  c.order_time,
+  r.pickup_time, 
+  r.duration;
+  ```
+| customer_id | order_id | runner_id | order_time              | pickup_time             | mins_difference | duration | avg_speed | pizza_count  |
+|-------------|----------|-----------|-------------------------|-------------------------|-----------------|----------|-----------|--------------|
+| 101         | 1        | 1         | 2020-01-01 18:05:02.000 | 2020-01-01 18:15:34.000 | 10              | 32       | 37.5      | 1            |
+| 101         | 2        | 1         | 2020-01-01 19:00:52.000 | 2020-01-01 19:10:54.000 | 10              | 27       | 44.4      | 1            |
+| 101         | 6        | 3         | 2020-01-08 21:03:13.000 | NULL                    | NULL            | NULL     | NULL      | 1            |
+| 102         | 3        | 1         | 2020-01-02 23:51:23.000 | 2020-01-03 00:12:37.000 | 21              | 20       | 40.2      | 2            |
+| 102         | 8        | 2         | 2020-01-09 23:54:33.000 | 2020-01-10 00:15:02.000 | 21              | 15       | 93.6      | 1            |
+| 103         | 4        | 2         | 2020-01-04 13:23:46.000 | 2020-01-04 13:53:03.000 | 30              | 40       | 35.1      | 3            |
+| 103         | 9        | 2         | 2020-01-10 11:22:59.000 | NULL                    | NULL            | NULL     | NULL      | 1            |
+| 104         | 5        | 3         | 2020-01-08 21:00:29.000 | 2020-01-08 21:10:57.000 | 10              | 15       | 40        | 1            |
+| 104         | 10       | 1         | 2020-01-11 18:34:49.000 | 2020-01-11 18:50:20.000 | 16              | 10       | 60        | 2            |
+| 105         | 7        | 2         | 2020-01-08 21:20:29.000 | 2020-01-08 21:30:45.000 | 10              | 25       | 60        | 1            |
+
+---
+### Q5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
+```TSQL
+DECLARE @basecost INT
+SET @basecost = 138
+
+SELECT 
+  @basecost AS revenue,
+  SUM(distance)*0.3 AS runner_paid,
+  @basecost - SUM(distance)*0.3 AS money_left
+FROM #runner_orders_temp;
+```
+| revenue | runner_paid | money_left  |
+|---------|-------------|-------------|
+| 138     | 43.56       | 94.44       |
+	
+---	
 ## 🔥 Bonus Questions
 
-### Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
-  
-  * ```region```
-  * ```platform```
-  * ```age_band```
-  * ```demographic```
-  * ```customer_type```
+### If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
 
- #### 1. Sales changes by ```regions```
-  
-```sql
-with cte as(select region,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by region)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233738525-2f67ae7d-6b1f-42ff-a5b8-c426dd4aec02.png)
+```TSQL
+INSERT INTO pizza_names (pizza_id, pizza_name)
+VALUES (3, 'Supreme');
 
-#### 2. Sales changes by ```platform```
+ALTER TABLE pizza_recipes
+ALTER COLUMN toppings VARCHAR(50);
 
-```sql
-with cte as(select platform,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by platform)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
+INSERT INTO pizza_recipes (pizza_id, toppings)
+VALUES (3, '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12');
 ```
-![image](https://user-images.githubusercontent.com/121611397/233738891-abf09ccf-d5f2-4fc6-98ce-18b60a9ee951.png)
-
-#### 3. Sales changes by ```age_band```
-  
-  ```sql
-with cte as(select age_band,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by age_band)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233738994-22be9f22-d38d-4a7b-881f-c0b89c293bef.png)
-  
-#### 4. Sales changes by ```demographic```
-  
- ```sql
-with cte as(select demographic,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by demographic)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233739063-a189016a-7643-405b-9ab0-7edb70598403.png) 
-  
-#### 5. Sales changes by ```customer_type```
-  
-  ```sql
-with cte as(select customer_type,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020'
-group by customer_type)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte
-order by pct_change desc;
-```
-![image](https://user-images.githubusercontent.com/121611397/233739135-cfe57b93-439a-409f-b5bf-8fd6868eb20d.png)
+Notice that I had to update the column ```toppings``` because the Supreme pizza had all the toppings.
   
 </details> 
   
