@@ -620,7 +620,7 @@ Click here to expand!
  <br> 
  
  
- * Insights into customer preferences and ordering patterns at the restaurant.
+ * Insights into customer preferences and ordering patterns at the restaurant:
 	
       * ```Meatlover_pizzas``` are more ```popular``` than vegetarian pizzas, with 75% of total orders being for meatlovers. 
 	
@@ -630,24 +630,21 @@ Click here to expand!
 	
       * ```Orders were placed at different times of the day```, including lunchtime (1 pm), in the evening (around 6 pm), and late at night (11 pm).
 	
- 
- **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
- 
- **3.** All the **3 customers purchased different items** on their **first visit** to the diner.
- 
- **4.** Out of the three dishes,**Ramen** is the **most purchased item** and has been ordered **8 times**.
- 
- **5.** **Most popular item for Customers A & C is Ramen** whereas Customer B has ordered all the 3 items, an equal number of times.
- 
- **6.** **Customer A ordered curry** and **Customer B order sushi** after they became a member.
- 
- **7.** **Customer A ordered both sushi & curry** and **Customer B ordered curry** before they both became members.
- 
- **8.** **Customer A** purchased 2 items in total and **spent $25** before becoming a member. **Customer B** purchased 2 items in total and **spent $40** before               becoming a member.While **Customer C** purchased 3 items and **spent $36 without being a member**.
-         
- **9.** **Customer B has the most 940 points**, while Customer A has 860 points  and Customer C has 360 points.
- 
-**10.** **Customer A has 1270 points** and **Customer B had 720 points** by the **end of January 2021**.
+* Insights into delivery operations and performance of runners at the restaurant:	
+	
+     * ```Runner 3 arrives at the restaurant in 10 minutes on average```, while Runner 1 and Runner 2 take 15 and 23 minutes respectively to arrive. This information 		can help the restaurant optimize their delivery operations by assigning deliveries to the fastest runner to ensure timely delivery of orders to their 		  customers.
+	
+     * On average, a ```single pizza takes 11-12 minutes to prepare```, but this time can increase if the quantity is more. However, the average time to prepare a 	  pizza drops to 9-10 minutes when quantity is more.
+	
+     * ```Orders are coming from an average distance of 10 km to 25 km```, with Runner 2 covering the most distance of approximately 24 km, while Runner 3 covered only 	10 km.
+	
+     * The ```shortest delivery time was 10 minutes```, and the ```longest delivery time was 40 minutes```, with an ```average speed of around 45 km/hr per order```.
+	
+     * ```Runner 1 has a 100% successful delivery record```, while Runner 2 and Runner 3 have a 75% and 50% success rate respectively, due to order cancellations.
+	
+     * Runner 2's speed of 94 km/hr for order #8 is way too fast compared to other deliveries. It is possible that there is a misspelling error in the distance for the       customer with ID 102, and the actual distance to their address is 13.4 km, not 23.4 km 
+	
+
 
  
 ### Learnings....!!!
