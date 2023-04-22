@@ -379,41 +379,45 @@ INSERT INTO pizza_recipesnew (pizza_id, toppings)
 ### Q1. What are the standard ingredients for each pizza?
   
 ```sql
-set @week_change=25
-with cte as(select 
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020')
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+select pizza_name,string_agg(topping_name,', ') as Standard_Ingredient
+from pizza_recipesnew 
+join pizza_names 
+using (pizza_id)
+join pizza_toppings on pizza_recipesnew.toppings=pizza_toppings.topping_id
+group by pizza_name
+order by pizza_name;
 ```
+![image](https://user-images.githubusercontent.com/121611397/233790646-b5842873-c95e-46fe-82a3-f05ec4649263.png)
 
   
  ### Q2. What was the most commonly added extra?
   
  ```sql
-with cte as(select Year_ ,
-sum(case when week_ between @week_change-4 and @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between @week_change and @week_change+3 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+with cte as(select unnest(string_to_array(extras, ',')):: int as ext_top,count(*) as Occurence_count
+from Customer_ordersnew c
+where extras is not null
+group by ext_top)
+select topping_name as Extra_topping,Occurence_count from cte
+join pizza_toppings p on
+cte.ext_top = p.topping_id
+order by Occurence_count desc;
  ```
+![image](https://user-images.githubusercontent.com/121611397/233790691-7ad1043a-9610-4aa6-8138-7d72bcd060a9.png)
 
  
 ### Q3. What was the most common exclusion?
   
 ```sql
-with cte as(select Year_,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+with cte as(select unnest(string_to_array(exclusions, ',')):: int as exclu_top,count(*) as Occurence_count
+from Customer_ordersnew c
+where exclusions is not null
+group by exclu_top)
+select topping_name as Exclusion_topping,Occurence_count from cte
+join pizza_toppings p on
+cte.exclu_top = p.topping_id
+order by Occurence_count desc;
 ```
+![image](https://user-images.githubusercontent.com/121611397/233790732-39fbf645-27ae-4317-b37e-e7482ac5a0ef.png)
 
  
 ### Q4.Generate an order item for each record in the ```customers_orders``` table in the format of one of the following
@@ -423,110 +427,102 @@ from cte;
 * ```Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers```
 	
 ```sql
-with cte as(select Year_,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+with cte as (select*,row_number()over()as rn from customer_ordersnew),
+cte2 as(select rn,order_id,pizza_name,cte.pizza_id,customer_id,order_time,
+      	case when cte.exclusions!='null' and topping_id in (select unnest(string_to_array(cte.exclusions,',')::int [])) 
+		then topping_name end as exclusion_toppings,
+      	case when cte.extras !='null' and topping_id in (select unnest(string_to_array(cte.extras,',')::int [])) 
+		then topping_name end as extra_toppings
+	from pizza_toppings as t,cte
+    join pizza_names on cte.pizza_id=pizza_names.pizza_id
+    group by 
+      	 rn,
+      	 order_id,
+     	 pizza_name,customer_id,
+	 	 cte.pizza_id ,order_time,
+      	 case when cte.exclusions!='null' and topping_id in (select unnest(string_to_array(cte.exclusions,',')::int [])) 
+		 then topping_name end,
+      	 case when cte.extras!='null' and topping_id in (select unnest(string_to_array(cte.extras,',')::int[])) 
+		 then topping_name end)
+select
+order_id,customer_id,cte2.pizza_id,order_time,
+concat(pizza_name,
+	   ' ',
+	  case when count(exclusion_toppings)>0 then '-Exclude ' else '' end,
+	  string_agg(exclusion_toppings,', '),
+	  case when count(extra_toppings)>0 then '-Extra ' else '' end ,
+	  string_agg(extra_toppings,', '))as ingredients_list
+	  from cte2
+	  group by order_id,pizza_name,customer_id,order_time,cte2.pizza_id,cte2.rn
+	  order by rn;
 ```
+![image](https://user-images.githubusercontent.com/121611397/233804066-03444148-0f14-480b-b4a9-068d52714350.png)
+
   	
 ### Q5. Generate an alphabetically ordered comma separated ingredient list for each pizza order from the ```customer_orders``` table and add a 2x in front of any relevant ingredients.
 * For example: ```"Meat Lovers: 2xBacon, Beef, ... , Salami"```	
 	
 ```sql
-with cte as(select Year_,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+
 ```
 	
 ### Q6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
 	
 ```sql
-with cte as(select Year_,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+
 ```	
 	
 ---  
 ## D. Pricing and Ratings
+	
 ### Q1. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
 
-```TSQL
-SELECT
-  SUM(CASE WHEN p.pizza_name = 'Meatlovers' THEN 12
-        ELSE 10 END) AS money_earned
-FROM #customer_orders_temp c
-JOIN pizza_names p
-  ON c.pizza_id = p.pizza_id
-JOIN #runner_orders_temp r
-  ON c.order_id = r.order_id
-WHERE r.cancellation IS NULL;
+```sql
+select sum(case when pizza_id = 1 then 12 else 10 end) as TotalAmount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null;
 ```
-| money_earned  |
-|---------------|
-| 138           |
+![image](https://user-images.githubusercontent.com/121611397/233802987-da48253a-025c-468a-b041-9bdfe2cbd651.png)
 
 ---
 ### Q2. What if there was an additional $1 charge for any pizza extras?
 * Add cheese is $1 extra
-```TSQL
-DECLARE @basecost INT
-SET @basecost = 138 	-- @basecost = result of the previous question
+	
+```sql
 
-SELECT 
-  @basecost + SUM(CASE WHEN p.topping_name = 'Cheese' THEN 2
-		  ELSE 1 END) updated_money
-FROM #extrasBreak e
-JOIN pizza_toppings p
-  ON e.extra_id = p.topping_id;
 ```
-| updated_money  |
-|----------------|
-| 145            |
 
----
+
+
 ### Q3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
-```TSQL
-DROP TABLE IF EXISTS ratings
-CREATE TABLE ratings (
-  order_id INT,
-  rating INT);
-INSERT INTO ratings (order_id, rating)
-VALUES 
-  (1,3),
-  (2,5),
-  (3,3),
-  (4,1),
-  (5,5),
-  (7,3),
-  (8,4),
-  (10,3);
+	
+```sql
+drop table if exists ratings;
+create table ratings (
+order_id integer,
+rating integer);
+insert into ratings
+(order_id, rating)
+values
+(1,4),
+(2,5),
+(3,3),
+(4,5),
+(5,2),
+(6,null),
+(7,3),
+(9,null),
+(8,4),
+(10,4);
 
  SELECT *
  FROM ratings;
+	
  ```
-| order_id | rating  |
-|----------|---------|
-| 1        | 3       |
-| 2        | 5       |
-| 3        | 3       |
-| 4        | 1       |
-| 5        | 5       |
-| 7        | 3       |
-| 8        | 4       |
-| 10       | 3       |
+![image](https://user-images.githubusercontent.com/121611397/233802951-d4cb9496-0925-4d4e-9626-06a43c0533a4.png)
 
----
 ### Q4. Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
 * ```customer_id```
 * ```order_id```
@@ -539,74 +535,56 @@ VALUES
 * Average speed
 * Total number of pizzas
 
-```TSQL
-SELECT 
-  c.customer_id,
-  c.order_id,
-  r.runner_id,
-  c.order_time,
-  r.pickup_time,
-  DATEDIFF(MINUTE, c.order_time, r.pickup_time) AS mins_difference,
-  r.duration,
-  ROUND(AVG(r.distance/r.duration*60), 1) AS avg_speed,
-  COUNT(c.order_id) AS pizza_count
-FROM #customer_orders_temp c
-JOIN #runner_orders_temp r 
-  ON r.order_id = c.order_id
-GROUP BY 
-  c.customer_id,
-  c.order_id,
-  r.runner_id,
-  c.order_time,
-  r.pickup_time, 
-  r.duration;
+```sql
+Select customer_id,o.order_id,runner_id,rating,order_time,pickup_time,
+--extract (minute from 
+(pickup_time-order_time)as Time_between_order_pickup, duration as Delivery_duration,
+round((distance*60/duration),2) as Average_speed,count(pizza_id) as Total_number_of_pizzas
+from customer_ordersnew o
+join runner_ordersnew using (order_id)
+join ratings using (order_id)
+where cancellation is null
+group by customer_id,o.order_id,runner_id,rating,order_time,pickup_time,
+extract (minute from (pickup_time-order_time)), duration,
+(distance*60/duration);
   ```
-| customer_id | order_id | runner_id | order_time              | pickup_time             | mins_difference | duration | avg_speed | pizza_count  |
-|-------------|----------|-----------|-------------------------|-------------------------|-----------------|----------|-----------|--------------|
-| 101         | 1        | 1         | 2020-01-01 18:05:02.000 | 2020-01-01 18:15:34.000 | 10              | 32       | 37.5      | 1            |
-| 101         | 2        | 1         | 2020-01-01 19:00:52.000 | 2020-01-01 19:10:54.000 | 10              | 27       | 44.4      | 1            |
-| 101         | 6        | 3         | 2020-01-08 21:03:13.000 | NULL                    | NULL            | NULL     | NULL      | 1            |
-| 102         | 3        | 1         | 2020-01-02 23:51:23.000 | 2020-01-03 00:12:37.000 | 21              | 20       | 40.2      | 2            |
-| 102         | 8        | 2         | 2020-01-09 23:54:33.000 | 2020-01-10 00:15:02.000 | 21              | 15       | 93.6      | 1            |
-| 103         | 4        | 2         | 2020-01-04 13:23:46.000 | 2020-01-04 13:53:03.000 | 30              | 40       | 35.1      | 3            |
-| 103         | 9        | 2         | 2020-01-10 11:22:59.000 | NULL                    | NULL            | NULL     | NULL      | 1            |
-| 104         | 5        | 3         | 2020-01-08 21:00:29.000 | 2020-01-08 21:10:57.000 | 10              | 15       | 40        | 1            |
-| 104         | 10       | 1         | 2020-01-11 18:34:49.000 | 2020-01-11 18:50:20.000 | 16              | 10       | 60        | 2            |
-| 105         | 7        | 2         | 2020-01-08 21:20:29.000 | 2020-01-08 21:30:45.000 | 10              | 25       | 60        | 1            |
+![image](https://user-images.githubusercontent.com/121611397/233802764-c10b85e3-7fdd-463c-88cb-7bf0afec2b27.png)
 
----
+
 ### Q5. If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras and each runner is paid $0.30 per kilometre traveled - how much money does Pizza Runner have left over after these deliveries?
-```TSQL
-DECLARE @basecost INT
-SET @basecost = 138
-
-SELECT 
-  @basecost AS revenue,
-  SUM(distance)*0.3 AS runner_paid,
-  @basecost - SUM(distance)*0.3 AS money_left
-FROM #runner_orders_temp;
+	
+```sql
+with total_price as (select sum(case when pizza_id = 1 then 12 else 10 end) as total_amount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null),
+delivery_charges as(select sum(distance)*0.3 as delivery_cost from runner_ordersnew)
+select round((total_amount-delivery_cost),1) money_left from total_price,delivery_charges
 ```
-| revenue | runner_paid | money_left  |
-|---------|-------------|-------------|
-| 138     | 43.56       | 94.44       |
+![image](https://user-images.githubusercontent.com/121611397/233802895-30220231-0142-4095-bdc2-7859d3d7c90e.png)
 	
 ---	
 ## 🔥 Bonus Questions
 
 ### If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
 
-```TSQL
-INSERT INTO pizza_names (pizza_id, pizza_name)
-VALUES (3, 'Supreme');
+```sql
+Create table pizza_namesnew as Select* from pizza_names
 
-ALTER TABLE pizza_recipes
-ALTER COLUMN toppings VARCHAR(50);
+insert into pizza_namesnew (pizza_id, pizza_name)
+values (3, 'Supreme');
 
-INSERT INTO pizza_recipes (pizza_id, toppings)
-VALUES (3, '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12');
+Create table pizza_recipesnew1 as Select* from pizza_recipesnew
+
+INSERT INTO pizza_recipesnew1 (pizza_id, toppings)
+VALUES (3,1),(3,2),(3,3),(3,4),(3,5),(3,6),(3,7),(3,8),(3,9),(3,10),(3,11),(3,12);
+	
 ```
-Notice that I had to update the column ```toppings``` because the Supreme pizza had all the toppings.
-  
+ * Showing 15 rows out of total 26 rows.
+	
+  ![image](https://user-images.githubusercontent.com/121611397/233804546-b821bf94-427a-4d81-8dfe-5e7bd42f78fd.png)
+
 </details> 
   
 ## 💡 Insights and Learnings
@@ -644,8 +622,8 @@ Click here to expand!
 	
      * Runner 2's speed of 94 km/hr for order #8 is way too fast compared to other deliveries. It is possible that there is a misspelling error in the distance for the       customer with ID 102, and the actual distance to their address is 13.4 km, not 23.4 km 
 	
-
-
+The most poplular extra ingredient is bacon. It was added as extra to 4 pizzas
+The most common exclusion is cheese. It was excluded from 4 pizzas
  
 ### Learnings....!!!
  
