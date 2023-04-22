@@ -7,15 +7,15 @@
 
 ## 📕 Table of Contents
 
- -	[Problem Statement](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-problem-statement)   
+ -	[Problem Statement](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-problem-statement)   
 
- - [Entity Relationship Diagram](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-entity-relationship-diagram)
+ - [Entity Relationship Diagram](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-entity-relationship-diagram)
 
- -	[Case Study Questions and Bonus Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-case-study-and-bonus-questions)
+ -	[Case Study Questions and Bonus Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-case-study-and-bonus-questions)
 
- - [SQL Queries for Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-sql-queries-for-questions)
+ - [SQL Queries for Questions](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-sql-queries-for-questions)
  
- -	[Insights and Learnings](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%231%20-%20Danny's%20Diner#-insights-and-learnings)
+ -	[Insights and Learnings](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%235%20-%20Data%20Mart#-insights-and-learnings)
 
 ## 📝 Problem Statement
 Join Danny's latest venture at Data Mart! As the mastermind behind an online supermarket specializing in fresh produce, Danny needs your expertise to analyze the sales performance following a large-scale supply change. In June 2020, Data Mart implemented sustainable packaging methods throughout their entire farm-to-customer process. Now, Danny is seeking your help to measure the quantifiable impact of this change and identify which platforms, regions, segments, and customer types were most affected. Let's work together to discover the answers and find ways to minimize future sustainability updates' impact on sales.
