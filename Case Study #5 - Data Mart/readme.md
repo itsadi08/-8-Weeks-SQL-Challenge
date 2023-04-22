@@ -337,8 +337,8 @@ from cte;
 
  #### 2. What about the entire 12 weeks before and after?
   
-    ```sql
-set @week_change=25;
+```sql
+set @week_change=25
 with cte as(select 
 sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
 sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
@@ -352,9 +352,9 @@ from cte;
   
  #### 3. How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
   
-  - For 4 weeks before and after 2020-06-15.
+ - For 4 weeks before and after 2020-06-15.
   
-    ```sql
+ ```sql
 with cte as(select Year_ ,
 sum(case when week_ between @week_change-4 and @week_change-1 then sales end) as before_weeks,
 sum(case when week_ between @week_change and @week_change+3 then sales end) as after_weeks
@@ -362,12 +362,12 @@ from cleaned_weekly_sales
 group by Year_)
 select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
 from cte;
-  ```
+ ```
  ![image](https://user-images.githubusercontent.com/121611397/233738060-6f0530f5-c67a-43fd-b31e-3e7d282b15c5.png)
  
-   - For 12 weeks before and after 2020-06-15.
+ - For 12 weeks before and after 2020-06-15.
   
-    ```sql
+```sql
 with cte as(select Year_,
 sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
 sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
@@ -375,7 +375,7 @@ from cleaned_weekly_sales
 group by Year_)
 select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
 from cte;
-  ```
+```
   ![image](https://user-images.githubusercontent.com/121611397/233738194-e549fb76-65d8-4a58-a152-7022895c0adf.png)
   
 ---  
