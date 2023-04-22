@@ -127,7 +127,7 @@ Click here to expand!
 	
 ### Data cleaning
   
-  * Create a new table ```#customer_ordersnew``` from ```customer_orders``` table:
+  * Create a new table ```customer_ordersnew``` from ```customer_orders``` table:
 	
   	* Convert the ```blank``` text values in ```exclusions``` and ```extras``` into null ```''```.
 
@@ -185,6 +185,8 @@ alter column duration type int USING CAST(duration AS int) ;
 ---
  
 ### Q1. How many pizzas were ordered? 
+	
+- Including cancelled orders(if cancelled orders excluded then 12)
 	
 ```sql
  select count(order_id)as Total_Pizzas_Ordered from customer_ordersnew; 
@@ -265,6 +267,8 @@ where exclusions is not null and extras is not null and cancellation is null
 	
 ### Q9 What was the total volume of pizzas ordered for each hour of the day?
 	
+- Including cancelled orders
+	
 ```sql	
 select extract (hour from order_time) as hour,count(order_id)as Total_Pizzas from customer_ordersnew
 group by extract (hour from order_time)
@@ -273,6 +277,8 @@ order by extract (hour from order_time)
 ![image](https://user-images.githubusercontent.com/121611397/233774378-90027b3e-5e2d-4f3b-a917-308a3b805955.png)
 	
 ### Q10 What was the volume of orders for each day of the week?
+	
+- Including cancelled orders
 	
 ```sql	
 select to_char(order_time,'Day') as DailyData,count(order_id)as Total_Pizzas from customer_ordersnew
@@ -614,7 +620,16 @@ Click here to expand!
  <br> 
  
  
- **1.** **Customer A** spent the **most ($76)**,while **Customer C** spent the **least ($36)**.
+ * Insights into customer preferences and ordering patterns at the restaurant.
+	
+      * ```Meatlover_pizzas``` are more ```popular``` than vegetarian pizzas, with 75% of total orders being for meatlovers. 
+	
+      * ```Standard_pizzas``` with standard toppings are also a ```popular_choice```, accounting for almost 50% of all orders.
+	
+      * ```Wednesdays``` and ```Saturdays``` are the ```busiest_days```, with 5 orders placed each.
+	
+      * ```Orders were placed at different times of the day```, including lunchtime (1 pm), in the evening (around 6 pm), and late at night (11 pm).
+	
  
  **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
  
