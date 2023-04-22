@@ -440,10 +440,8 @@ cte2 as(select rn,order_id,pizza_name,cte.pizza_id,customer_id,order_time,
       	 order_id,
      	 pizza_name,customer_id,
 	 	 cte.pizza_id ,order_time,
-      	 case when cte.exclusions!='null' and topping_id in (select unnest(string_to_array(cte.exclusions,',')::int [])) 
-		 then topping_name end,
-      	 case when cte.extras!='null' and topping_id in (select unnest(string_to_array(cte.extras,',')::int[])) 
-		 then topping_name end)
+      	 exclusion_toppings,
+      	 extra_toppings)
 select
 order_id,customer_id,cte2.pizza_id,order_time,
 concat(pizza_name,
@@ -469,8 +467,38 @@ concat(pizza_name,
 ### Q6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
 	
 ```sql
+with std as(select topping_name,count(toppings) as std_Occurence_count from pizza_recipesnew pr
+join pizza_toppings pt on pr.toppings=pt.topping_id
+join customer_ordersnew  co using(pizza_id)
+join runner_ordersnew ro on ro.order_id=co.order_id
+where pizza_id in (1,2) and cancellation is null
+group by topping_name
+order by count(toppings)desc),
+extra as(
+select topping_name,extra_count from (select unnest(string_to_array(extras, ',')):: int as topping_id,count(*) as extra_count
+from Customer_ordersnew c
+where extras is not null and order_id not in (6,9)
+group by topping_id)t
+join pizza_toppings p on
+t.topping_id = p.topping_id
+order by extra_count desc),
+exclusion as(
+select topping_name,exclude_count from (select unnest(string_to_array(exclusions, ',')):: int as topping_id,count(*) as exclude_count
+from Customer_ordersnew c
+where exclusions is not null and order_id not in (6,9)
+group by topping_id)t
+join pizza_toppings p on
+t.topping_id = p.topping_id
+order by exclude_count desc)
+, total as (
+select std.topping_name,std_Occurence_count, extra_count,exclude_count from std
+left join extra on std.topping_name=extra.topping_name
+left join exclusion on std.topping_name=exclusion.topping_name)
 
+select total.topping_name,(std_Occurence_count+coalesce(extra_count,0)-coalesce(exclude_count,0)) as Total_ingredients from total
+order by Total_ingredients desc
 ```	
+![image](https://user-images.githubusercontent.com/121611397/233807536-efdf5829-c810-486f-b215-bf32eec94f06.png)
 	
 ---  
 ## D. Pricing and Ratings
@@ -491,9 +519,19 @@ where cancellation is null;
 * Add cheese is $1 extra
 	
 ```sql
-
+with std_total as (select sum(case when pizza_id = 1 then 12 else 10 end) as TotalAmount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null),
+extras as (select sum(case when topping_id=4 then extra_count*2 else extra_count*1 end) as extras_sum
+		   from (select unnest(string_to_array(extras, ',')):: int as topping_id,count(*) as extra_count
+from Customer_ordersnew c
+where extras is not null and order_id not in (6,9)
+group by topping_id)t)
+select TotalAmount+extras_sum as total_amount from std_total,extras
 ```
-
+![image](https://user-images.githubusercontent.com/121611397/233808249-6f68cb1a-11e2-47f3-87e4-bd4f48a4814c.png)
 
 
 ### Q3. The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, how would you design an additional table for this new dataset - generate a schema for this new table and insert your own data for ratings for each successful customer order between 1 to 5.
@@ -567,7 +605,7 @@ select round((total_amount-delivery_cost),1) money_left from total_price,deliver
 ---	
 ## 🔥 Bonus Questions
 
-### If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?
+#### If Danny wants to expand his range of pizzas - how would this impact the existing data design? Write an INSERT statement to demonstrate what would happen if a new      Supreme pizza with all the toppings was added to the Pizza Runner menu?
 
 ```sql
 Create table pizza_namesnew as Select* from pizza_names
