@@ -234,70 +234,154 @@ limit 3;
 ![image](https://user-images.githubusercontent.com/121611397/233768269-3bdbe1e1-46fd-439b-b9f5-3196cf4aeb0d.png)
   
 ---
-## C. Before and After Analysis
-
-This technique is usually used when we inspect an important event and want to inspect the impact before and after a certain point in time. 
-Taking the week_date value of 2020-06-15 as the baseline week where the Data Mart sustainable packaging changes came into effect. 
-We would include all week_date values for 2020-06-15 as the start of the period after the change and the previous week_date values would be before.
-
-Using this analysis approach - answer the following questions:
-  
-#### 1. What is the total sales for the 4 weeks before and after 2020-06-15? What is the growth or reduction rate in actual values and percentage of sales?
-  
-  ```sql
-with cte as(select 
-sum(case when week_ between '21' and '24' then sales end) as before_weeks,
-sum(case when week_ between '25' and '28' then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020')
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
-```
- ![image](https://user-images.githubusercontent.com/121611397/233737587-e7ccc3c7-37ef-4b1c-be9e-3c7c5caadc30.png)
-
- #### 2. What about the entire 12 weeks before and after?
-  
-    ```sql
-set @week_change=25;
-with cte as(select 
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-where Year_='2020')
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
-```
- ![image](https://user-images.githubusercontent.com/121611397/233737885-cdf15025-aa57-4905-a1f1-6ffdcd73bf2d.png)
-
-  
- #### 3. How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
-  
-  - For 4 weeks before and after 2020-06-15.
-  
-    ```sql
-with cte as(select Year_ ,
-sum(case when week_ between @week_change-4 and @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between @week_change and @week_change+3 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
-  ```
- ![image](https://user-images.githubusercontent.com/121611397/233738060-6f0530f5-c67a-43fd-b31e-3e7d282b15c5.png)
+## B. Product Funnel Analysis
  
-   - For 12 weeks before and after 2020-06-15.
+#### Using a single SQL query - create a new output table which has the following details:
+ 
+  * How many times was each product viewed?
+  * How many times was each product added to cart?
+  * How many times was each product added to a cart but not purchased (abandoned)?
+  * How many times was each product purchased?
+
+The output table will look like:
+
+| Columns          | Description                                                               |
+|------------------|---------------------------------------------------------------------------|
+| product_id       | Id of each product                                                        |
+| product_name     | Name of each product                                                      |
+| product_category | Category of each product                                                  |
+| views            | Number of times each product viewed                                       |
+| cart_adds        | Number of times each product added to cart                                |
+| abondoned        | Number of times each product added to cart but not purchased (abandoned)  |
+| purchases        | Number of times each product purchased                                    |
+ 
+ 
+  ```sql
+DROP TEMPORARY TABLE IF EXISTS product_summary;
+CREATE TEMPORARY TABLE product_summary
+AS
+with cte as (select product_id as Product_id,page_name as Product_name,
+sum(case when event_name='Page View' then 1 else 0 end) as Page_View,
+sum(case when event_name='Add to Cart' then 1 else 0 end) as Add_to_Cart
+from events
+join event_identifier using (event_type)
+join page_hierarchy using (page_id)
+where product_id is not null
+group by product_id ,page_name
+order by product_id ,page_name)
+,cte1 as( 
+select cte.Product_id as Product_id,Product_name,Page_View,Add_to_Cart,count(event_type) as Purchased from events
+join event_identifier using (event_type)
+join page_hierarchy using (page_id)
+join cte on cte.Product_id=page_hierarchy.Product_id
+where event_name='Add to Cart'
+and visit_id in (select visit_id
+  from events join event_identifier using (event_type) where event_name = 'Purchase')
+group by cte.Product_id,Product_name,Page_View,Add_to_Cart),
+cte2 as(select cte1.Product_id as Product_id,Product_name,Page_View,Add_to_Cart,cte1.Purchased,Add_to_Cart-cte1.Purchased as Abandoned
+from cte1
+order by cte1.Product_id)
+select *
+from cte2
+order by Product_id;
+```
+ ![image](https://user-images.githubusercontent.com/121611397/233769039-d944b414-4cf0-46fe-aa3d-0bc6f0362e0d.png)
+
+ #### Additionally, create another table which further aggregates the data for the above points but this time for each product category instead of individual products.
   
-    ```sql
-with cte as(select Year_,
-sum(case when week_ between @week_change-12 and  @week_change-1 then sales end) as before_weeks,
-sum(case when week_ between  @week_change and  @week_change+11 then sales end) as after_weeks
-from cleaned_weekly_sales
-group by Year_)
-select *,after_weeks-before_weeks as growth,round((after_weeks-before_weeks)*100/(before_weeks),2) as pct_change
-from cte;
+ ```sql
+ 
+DROP TEMPORARY TABLE IF EXISTS category_summary;
+CREATE TEMPORARY TABLE category_summary AS
+with cte as (select product_category,
+sum(case when event_name='Page View' then 1 else 0 end) as Page_View,
+sum(case when event_name='Add to Cart' then 1 else 0 end) as Add_to_Cart
+from events
+join event_identifier using (event_type)
+join page_hierarchy using (page_id)
+where product_id is not null
+group by product_category
+order by product_category)
+ ,cte1 as( 
+select cte.product_category as Category,Page_View,Add_to_Cart,count(event_type) as Purchased from events
+join event_identifier using (event_type)
+join page_hierarchy using (page_id)
+join cte on cte.product_category=page_hierarchy.product_category
+where event_name='Add to Cart'
+and visit_id in (select visit_id
+ from events join event_identifier using (event_type) where event_name = 'Purchase')
+group by cte.product_category,Page_View,Add_to_Cart),
+cte2 as(select cte1.Category,Page_View,Add_to_Cart,cte1.Purchased,Add_to_Cart-cte1.Purchased as Abandoned
+from cte1)
+select *
+from cte2;
+```
+![image](https://user-images.githubusercontent.com/121611397/233769087-8a68121f-2af8-42e7-853c-bf28e6ca3edb.png)
+
+ ---
+ Use your 2 new output tables - Answer the following questions:
+  
+ #### 1. Which product had the most views, cart adds and purchases?
+ 
+  - Most Product Views.
+ 
+```sql
+select Product_name from product_summary
+order by Page_View desc
+limit 1;
+```
+ ![image](https://user-images.githubusercontent.com/121611397/233769352-161fd66b-413c-487f-b50b-d60ee29650b5.png)
+ 
+  - Most Cart Adds.
+  
+```sql
+select Product_name from product_summary
+order by Add_to_Cart desc
+limit 1;
+ ```
+  ![image](https://user-images.githubusercontent.com/121611397/233769452-e8cd933e-b492-4563-9921-cfa5afbe9b99.png)
+  
+ - Most Purchases.
+ 
+ ```sql
+select Product_name from product_summary
+order by Purchased desc
+limit 1;
   ```
-  ![image](https://user-images.githubusercontent.com/121611397/233738194-e549fb76-65d8-4a58-a152-7022895c0adf.png)
-  
+ ![image](https://user-images.githubusercontent.com/121611397/233769530-60d622c8-e7b8-46de-a134-ae8fad603549.png)
+
+ #### 2. Which product was most likely to be abandoned?
+ 
+  ```sql
+select Product_name from product_summary
+order by Abandoned desc
+limit 1;
+  ```
+ ![image](https://user-images.githubusercontent.com/121611397/233770284-ee261328-eb4c-49ce-ac8e-fc0ae4eab88e.png)
+
+  #### 3. Which product was most likely to be abandoned?
+ 
+  ```sql
+select Product_name,round(Purchased*100/Page_View,1) as Percentage from product_summary
+ order by Percentage desc
+ limit 1;
+  ```
+ ![image](https://user-images.githubusercontent.com/121611397/233770293-a1ed8fd9-1e49-4d98-9603-aa1ad01ef4ec.png)
+
+ #### 4. What is the average conversion rate from view to cart add?
+ 
+  ```sql
+select round(avg(Add_to_Cart*100/Page_View),2) as Conversion_rate from product_summary;
+  ```
+ ![image](https://user-images.githubusercontent.com/121611397/233770381-f207c5c5-7d39-413c-956b-a6721333feb8.png)
+
+  #### 5. What is the average conversion rate from cart add to purchase?
+ 
+  ```sql
+select round(avg(Purchased*100/Add_to_Cart),2) as Conversion_rate from product_summary;
+  ```
+ ![image](https://user-images.githubusercontent.com/121611397/233770414-222224b7-28c2-45cb-a97b-eff673e99fd2.png)
+
 ---  
 ## 🔥 Bonus Questions
 
