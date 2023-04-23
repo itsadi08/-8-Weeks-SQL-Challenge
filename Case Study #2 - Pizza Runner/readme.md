@@ -461,7 +461,7 @@ concat(pizza_name,
 * For example: ```"Meat Lovers: 2xBacon, Beef, ... , Salami"```	
 	
 ```sql
-
+To be updated soon...
 ```
 	
 ### Q6. What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
@@ -660,9 +660,24 @@ Click here to expand!
 	
      * Runner 2's speed of 94 km/hr for order #8 is way too fast compared to other deliveries. It is possible that there is a misspelling error in the distance for the       customer with ID 102, and the actual distance to their address is 13.4 km, not 23.4 km 
 	
-The most poplular extra ingredient is bacon. It was added as extra to 4 pizzas
-The most common exclusion is cheese. It was excluded from 4 pizzas
+* Insights into Popularity of Ingredients:
+
+     * ```Bacon is the most popular extra ingredient```, and it was added to 4 pizzas. This suggests that bacon is a popular choice among customers who like to customize their pizzas. 
+  
+     * ```Similarly, cheese is the most common exclusion, and it was excluded from 4 pizzas. This could be due to various reasons, such as dietary restrictions or personal preferences.
  
+     * Ingredients  that are popular among customers are,Bacon is the most frequently used ingredient with a total quantity of 12. It is followed closely by mushrooms with a quantity of 11, and cheese with a quantity of 10.
+
+     * ```BBQ sauce is the most frequently used sauce with a quantity of 8```, followed by tomato sauce with a quantity of 3. This will be useful for the restaurant in terms of understanding which sauces are popular and how much of each sauce to keep in stock.
+
+* Insights into Pricing and Ratings:
+
+     * The ```total revenue generated``` from pizza sales, considering 9 Meat Lovers pizzas sold at $12 each and 3 Vegetarian pizzas sold at $10 each, is ```$138```.
+     
+     *  Runner 1 has an average rating of 3.5 stars from 4 orders, Runner 2 has an average rating of 3 stars from 3 orders, and Runner 3 has an average rating of 5 stars from 1 order only.
+     
+     * Pizza Runner has made a ``` net revenue of $94.44``` after paying the runners for their distance traveled at $0.30/km..
+
 ### Learnings....!!!
  
 After analysing this case study, I have gained a strong understanding of the following concepts:
@@ -671,13 +686,15 @@ After analysing this case study, I have gained a strong understanding of the fol
  
 -Group By Aggregates.
  
--Window Functions for ranking and row number.
+-Window Functions for row number.
  
 -Joins with using keyword.
  
 -Case Function with between and date function.
 
+-String transformations(like Unnest and string toarray functions,string_agg)
 
+- Dealing with null values and table normalisations.
 
 </details>
 
