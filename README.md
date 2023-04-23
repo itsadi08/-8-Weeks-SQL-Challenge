@@ -49,7 +49,7 @@ Danny started by recruiting runners to deliver his fresh pies (from his house, n
 
 So, SQL gurus, it's time to flex those data manipulation skills. But first, we gotta clean up that messy data. There are null values and wonky data types in the customer_orders and runner_orders tables, so let's get to work! Once we've tidied things up, we can dive into those juicy questions and help Danny take his pizza empire to the next level.
 
-Here's how you can help Danny: View the case study and the solution here.
+Here's how you can help Danny: View the [case study](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%232%20-%20Pizza%20Runner/README.md) and the [solution](https://github.com/itsadi08/8-Weeks-SQL-Challenge/tree/main/Case%20Study%20%232%20-%20Pizza%20Runner#-sql-queries-for-questions) here.
 
 
 ##  🎥🍐 Case Study #3 - Foodie-Fi
@@ -64,7 +64,7 @@ But Danny's not just relying on his foodie charm to make Foodie-Fi a success. He
 
 So if you're a foodie who loves to stream, you know where to go. Foodie-Fi is the place to be for all your culinary needs. And with Danny's data-driven approach, you can be sure you're getting the best content and experience possible. So grab a snack, settle in, and let the foodie fun begin!
 
-Help Danny take Foodie-Fi to the next level with your data analysis skills: View the case study and the solution here.
+Help Danny take Foodie-Fi to the next level with your data analysis skills: View the case study and the solution here. **TO BE UPDATED SOON**
 
 ## 📊 Case Study #4 - Data Bank
 
@@ -78,7 +78,7 @@ But with the goal of increasing their customer base, the management team at Data
 
 So if you're a data whiz, it's time to join forces with Data Bank and help them take the next step in their evolution. With your data analysis skills, we can unlock the insights needed to make informed decisions and grow Data Bank's customer base. So let's get to work and make Data Bank the go-to destination for secure, reliable data storage and digital banking.
 
-Check out the case study here and the solution here.
+Check out the case study here and the solution here. **TO BE UPDATED SOON**
 
 
 ##  🏬 Case Study #5 - Data Mart
@@ -91,10 +91,10 @@ Alright, let's get to work data enthusiasts! Danny, the mastermind behind Data M
 
 Can you help him quantify the impact and identify the most affected areas? Plus, what can be done to minimize impact in the future? So, let's dive into the data and find some answers for Danny!
 
-Check out the case study here and the solution here.
+Check out the [case study](https://github.com/itsadi08/8-Weeks-SQL-Challenge/blob/main/Case%20Study%20%235%20-%20Data%20Mart/readme.md) and the [solution](https://github.com/itsadi08/8-Weeks-SQL-Challenge/blob/main/Case%20Study%20%235%20-%20Data%20Mart#-sql-queries-for-questions) here.
 
 
-## 🐟 Case Study #6 - Clique Bait
+## 👆🎣 Case Study #6 - Clique Bait
 
 <p align ="center">
  <img width="300" height="300" src="https://user-images.githubusercontent.com/121611397/233271033-291069fd-b10b-47e9-99e6-cfc2a5593b6e.png">
@@ -102,4 +102,4 @@ Check out the case study here and the solution here.
 
 Alright folks, listen up! We've got a fishy situation on our hands. Clique Bait, an online seafood store, is run by the CEO Danny, who thinks he's a hotshot data analyst. He wants us to help him calculate funnel fallout rates for his store. Our mission, should we choose to accept it, is to dive deep into his dataset and come up with creative solutions to identify where customers are dropping off in the sales funnel. Danny wants to expand his knowledge of the seafood industry, and we're gonna help him do just that by optimizing his sales funnel and boosting his conversion rates. Let's show him how it's done!
 
-Check out the case study and the solution here.
+Check out the [case study](https://github.com/itsadi08/8-Weeks-SQL-Challenge/blob/main/Case%20Study%20%236%20-%20Clique%20Bait/readme.md) and the [solution](https://github.com/itsadi08/8-Weeks-SQL-Challenge/blob/main/Case%20Study%20%236%20-%20Clique%20Bait#-sql-queries-for-questions) here.
