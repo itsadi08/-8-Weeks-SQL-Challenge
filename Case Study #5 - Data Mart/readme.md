@@ -223,10 +223,10 @@ order by num;
 #### 3. How many total transactions were there for each year in the dataset?
 
 ```sql
-select year(week_date) as Year_,count(transactions) as Total_transactions from cleaned_weekly_sales
+select year(week_date) as Year_,sum(transactions) as Total_transactions from cleaned_weekly_sales
 group by year(week_date);
 ```
-![image](https://user-images.githubusercontent.com/121611397/233734571-c503d6d5-9133-4bf5-ab04-9d8f72a188aa.png)
+![image](https://user-images.githubusercontent.com/121611397/233826569-ca65b024-4e85-4f14-9672-72bc595c8515.png)
 
 
 #### 4. What is the total sales for each region for each month?
@@ -243,10 +243,11 @@ order by region;
 #### 5. What is the total count of transactions for each platform?
 
 ```sql
-select platform,count(transactions) as Total_transactions from cleaned_weekly_sales
+sselect platform,sum(transactions) as Total_transactions from cleaned_weekly_sales
 group by platform;
 ```
-![image](https://user-images.githubusercontent.com/121611397/233735055-cb63c36c-ac39-42e9-b638-b7dc8fa8c3a7.png)
+![image](https://user-images.githubusercontent.com/121611397/233828621-4e7879df-3e60-4ac1-b791-ef0e765dc195.png)
+
 
 #### 6. What is the percentage of sales for Retail vs Shopify for each month?
 
@@ -476,28 +477,66 @@ Click here to expand!
 
  <br> 
  
- 
- **1.** **Customer A** spent the **most ($76)**,while **Customer C** spent the **least ($36)**.
- 
- **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
- 
- **3.** All the **3 customers purchased different items** on their **first visit** to the diner.
- 
- **4.** Out of the three dishes,**Ramen** is the **most purchased item** and has been ordered **8 times**.
- 
- **5.** **Most popular item for Customers A & C is Ramen** whereas Customer B has ordered all the 3 items, an equal number of times.
- 
- **6.** **Customer A ordered curry** and **Customer B order sushi** after they became a member.
- 
- **7.** **Customer A ordered both sushi & curry** and **Customer B ordered curry** before they both became members.
- 
- **8.** **Customer A** purchased 2 items in total and **spent $25** before becoming a member. **Customer B** purchased 2 items in total and **spent $40** before               becoming a member.While **Customer C** purchased 3 items and **spent $36 without being a member**.
-         
- **9.** **Customer B has the most 940 points**, while Customer A has 860 points  and Customer C has 360 points.
- 
-**10.** **Customer A has 1270 points** and **Customer B had 720 points** by the **end of January 2021**.
+- **Insights of Business Sales Transactions:**
 
+   * Each weeks starts from Monday and ```28 weeks data ranging from 1-12 and 37 is not available```.
+  
+   * ```Year on Year Transactions```: The data shows that the company has experienced growth in sales transactions year-on-year. The sales have increased from 346,406,460 in 2018 to 375,813,651 in 2020. Thus indicating that the business is performing well and has achieved growth.
+  
+   *  ```Regional Sales```: The information reveals that Oceania generates the highest sales, followed by Africa and Asia. It implies that the business has a stronger market presence in these regions, and they may be prioritizing their marketing efforts and resources accordingly.
+   
+     <p align ="center">
+     <img width="800" height="400" src="https://user-images.githubusercontent.com/121611397/233828368-bee13fb4-a988-4447-bbbb-3b85362aa134.png">
+      </p>
+
+    * ```Retail vs. Shopify```: The data shows that the majority of sales transactions are made through retail channels. Only a small percentage of sales are done through Shopify. The table reveals that retail sales make up 99.4% of total sales transactions.
  
+    * ```Sales by Year and Type```: The data shows the average percentage of sales made through Retail and Shopify channels. In 2018, Retail sales contributed to 97.8% of total sales, whereas Shopify sales contributed to 2.2%. Similarly, Retail sales contributed to 97.4% in 2019, and Shopify sales contributed to 2.6%. The trend continued in 2020, with Retail sales contributing to 96.8% and Shopify sales contributing to 3.2%. The trend suggests that the company's sales through Shopify have been increasing over the years.
+   
+       <p align ="center">
+       <img width="800" height="400" src="https://user-images.githubusercontent.com/121611397/233829053-134fe9ab-7461-4ce9-b181-e2cedbd68c23.png">
+      </p>
+
+  * ```Sales by Year and Demographics```: The data shows that there has been an increase in the percentage of sales made to couples and a decrease in sales made to unknown demographics. In 2020, sales made to couples were 28.72%, an increase from 26.38% in 2018, while sales made to unknown demographics decreased from 41.63% in 2018 to 38.55% in 2020. The data also shows that sales made to families have remained relatively consistent over the years, contributing to around one-third of total sales.
+
+  * ```Sales by Age Band```: The data shows that sales made to the Unknown age group contributes to the highest sales percentage at 40.52%. The retirees demographic group contributes to the next highest percentage, with families contributing to 16.73% and couples to 16.07%. 
+ 
+ - **Impact Analysis of the sustainable packaging changes on the sales of Data Mart:**
+
+ 	* The baseline week for the sustainable packaging changes is week 25, which had sales of 570,025,348. In the following weeks, there was a fluctuation in sales, but in general, sales remained relatively stable.
+ 
+ 	* The 4 week sales before week 25 totaled 2,329,622,315, while the 4 week sales after week 25 totaled 2,333,907,223. This represents a decrease of 1.15% in sales.
+ 
+ 	* This decrease in sales may not necessarily be attributed solely to the sustainable packaging changes. There may have been other factors that influenced sales during this time period, such as seasonal trends, economic conditions, and competition.
+ 		
+		![image](https://user-images.githubusercontent.com/121611397/233837352-07dbeb41-6eda-4034-9348-20618ee9de62.png)
+
+- **The following data presents a comparative analysis of 12 weeks prior to and following a sustainable packaging change implemented by the company on 15th June 2020.**
+
+	* Looking at the ```year-on-year trend for sales, we can see that there has been a general upward trend in sales``` from 2018 to 2020. However, there seems to be a slight dip in sales from 2019 to 2020. It is also worth noting that there are seasonal fluctuations in sales, with the highest sales usually occurring in weeks 13-15 and the lowest sales in weeks 32-36.
+		
+		![image](https://user-images.githubusercontent.com/121611397/233837670-9d0f4153-c3e7-458c-821a-cdadadd2b8a6.png)
+
+	* ```Oceania had the highest percentage of sales contribution``` with 34.51% followed by Africa with 25.38% and then Asia with 19.45%. But, In terms of the percentage of change in sales after the change, Europe had the highest percentage of increase in sales with 4.73% followed by Asia with a decrease of 3.26%
+		
+		![image](https://user-images.githubusercontent.com/121611397/233835774-6aff984c-8657-4901-bccd-fc30883bc93b.png) 
+
+	* ```Retail has a significantly higher total sales than Shopify```. However, Retail also experienced a decrease in sales by 2.43% over the given weeks, whereas Shopify experienced an increase in sales by 7.18%.
+	
+		![image](https://user-images.githubusercontent.com/121611397/233836054-201427ff-0f4b-49cd-968b-0e364a6217f6.png) 
+
+	 * The ```age band Unknown had the highest total sales before and after the period```, but had a decrease in sales of 3.34%, the largest percentage decrease among the four age bands. "Middle Aged" had the second-highest total sales, but also had a decrease in sales of 1.97%, followed by "Retirees" with a decrease in sales of 1.23%, and "Young Adults" with a decrease in sales of 0.92%.
+ 		
+		![image](https://user-images.githubusercontent.com/121611397/233836440-cc125228-0a7e-4504-b9da-63e5dd944d52.png) 
+
+	*  ```Unknown demographic has the highest total sales```, but ```also has the largest percentage decrease of 3% in sales compared to previous weeks``` after the change occured. Families have the second-highest total sales and a moderate decrease in sales, while couples have the lowest total sales and a small decrease in sales.
+		![image](https://user-images.githubusercontent.com/121611397/233836421-4eb903f3-8788-46a4-bdf0-cd3f193621f4.png) 
+
+	* ```Existing customers have consistently generated the highest sales figures``` over the given period but have a sales drop 2.27%, followed by Guest customers but have highest sales drop of 3% , while New customers generated the lowest sales but has a increase in sales by 1.01%.
+	
+  		![image](https://user-images.githubusercontent.com/121611397/233836376-bc18e765-8ac2-4249-a53d-8a70526f2a53.png) 
+
+
 ### Learnings....!!!
  
 After analysing this case study, I have gained a strong understanding of the following concepts:
@@ -506,9 +545,9 @@ After analysing this case study, I have gained a strong understanding of the fol
  
 -Group By Aggregates.
  
--Window Functions for ranking and row number.
+-Basics of recursive & set function apllicability.
  
--Joins with using keyword.
+-Joins.
  
 -Case Function with between and date function.
 
