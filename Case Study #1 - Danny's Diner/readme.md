@@ -247,40 +247,40 @@ Click here to expand!
  <br> 
  
  
- **1.** **Customer A** spent the **most ($76)**,while **Customer C** spent the **least ($36)**.
+ **1.** ```Customer A``` spent the ```most ($76)```,while ```Customer C``` spent the ```least ($36)```.
  
- **2.** **Customer B** made the most **visits (6 times)** which is the highest,while **Customer C visited just twice**.
+ **2.** ```Customer B``` made the most ```visits (6 times)``` which is the highest,while ```Customer C visited just twice```.
  
- **3.** All the **3 customers purchased different items** on their **first visit** to the diner.
+ **3.** All the ```3 customers purchased different items```on their ```first visit```to the diner.
  
- **4.** Out of the three dishes,**Ramen** is the **most purchased item** and has been ordered **8 times**.
+ **4.** Out of the three dishes,```Ramen``` is the ```most purchased item``` and has been ```ordered 8 times```.
  
- **5.** **Most popular item for Customers A & C is Ramen** whereas Customer B has ordered all the 3 items, an equal number of times.
+ **5.** ```Most popular item for Customers A & C is Ramen``` whereas Customer B has ordered all the 3 items, an equal number of times.
  
- **6.** **Customer A ordered curry** and **Customer B order sushi** after they became a member.
+ **6.** ```Customer A ordered curry``` and ```Customer B order sushi```after they became a member.
  
- **7.** **Customer A ordered both sushi & curry** and **Customer B ordered curry** before they both became members.
+ **7.** ```Customer A ordered both sushi & curry``` and ```Customer B ordered curry``` before they both became members.
  
- **8.** **Customer A** purchased 2 items in total and **spent $25** before becoming a member. **Customer B** purchased 2 items in total and **spent $40** before               becoming a member.While **Customer C** purchased 3 items and **spent $36 without being a member**.
+ **8.** ```Customer A``` purchased 2 items in total and ```spent $25``` before becoming a member. ```Customer B``` purchased 2 items in total and ```spent $40```   before becoming a member.While ```Customer C```purchased 3 items and ```spent $36 without being a member```.
          
- **9.** **Customer B has the most 940 points**, while Customer A has 860 points  and Customer C has 360 points.
+ **9.** ```Customer B has the most 940 points```, while Customer A has 860 points  and Customer C has 360 points.
  
-**10.** **Customer A has 1270 points** and **Customer B had 720 points** by the **end of January 2021**.
+**10.** ```Customer A has 1270 points``` and ```Customer B had 720 points```by the end of January 2021.
 
  
 ### Learnings....!!!
  
 After analysing this case study, I have gained a strong understanding of the following concepts:
 
--Common Table Expressions.
+ - Common Table Expressions.
  
--Group By Aggregates.
+ - Group By Aggregates.
  
--Window Functions for ranking and row number.
+ - Window Functions for ranking and row number.
  
--Joins with using keyword.
+ - Joins with using keyword.
  
--Case Function with between and date function.
+ - Case Function with between and date function.
 
 
 
