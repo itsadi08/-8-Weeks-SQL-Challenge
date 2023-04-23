@@ -1,1 +1,1 @@
-CHeck out the above files
+Check out the above files
