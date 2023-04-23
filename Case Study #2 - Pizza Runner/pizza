@@ -1,0 +1,403 @@
+select * from customer_ordersnew;
+select * from pizza_names;
+select * from pizza_recipes;
+select * from pizza_toppings;
+select * from runner_ordersnew;
+select * from runners;
+
+
+---data cleaning------------------------
+drop table if exists customer_ordersnew;
+create table customer_ordersnew as
+(select order_id, customer_id, pizza_id, exclusions, extras, order_time 
+from customer_orders);
+								 
+update customer_ordersnew
+set exclusions=case when exclusions ='No Record' then null else exclusions end,
+extras=case when extras='No Record' then null else extras end;
+
+-------runner_orders-----------------------
+
+drop table if exists runner_ordersnew;
+create table runner_ordersnew as 
+(select order_id, runner_id, pickup_time,
+case
+ when distance like '%km' then trim('km' from distance)else distance end as distance,
+case
+ when duration like '%minutes' then trim('minutes' from duration)
+ when duration like '%mins' then trim('mins' from duration)
+ when duration like '%minute' then trim('minute' from duration)
+else duration end as duration, 
+cancellation 
+from runner_orders);
+
+update runner_ordersnew
+set pickup_time = case when pickup_time ='null' then null  else pickup_time end,
+distance = case  when distance= 'null' then null else distance end,
+duration = case  when duration ='null' then null else duration end,
+cancellation = case when cancellation ='null' then null else cancellation end,
+
+update runner_ordersnew
+set cancellation = case when cancellation ='' then null else cancellation end;
+
+alter table runner_ordersnew
+alter column pickup_time type timestamp USING TO_TIMESTAMP(pickup_time, 'YYYY-MM-DD HH24:MI:SS'),
+alter column distance type decimal USING CAST(distance AS DECIMAL),
+alter column duration type int USING CAST(duration AS int) ;
+------data cleaning over--------------------
+ -----A. Pizza Metrics-------
+--Q1 How many pizzas were ordered?
+select count(order_id)as Total_Pizzas_Ordered from customer_ordersnew;
+
+--Q2 How many unique customer orders were made?
+select count(distinct order_id)as Total_Orders from customer_ordersnew;
+
+--Q3 How many successful orders were delivered by each runner?
+select runner_id,count(order_id) as Successful_orders from runner_ordersnew
+where cancellation is null
+group by runner_id;
+
+--Q4 How many of each type of pizza was delivered?
+select pizza_name,count(pizza_id) as No_of_Pizzas from customer_ordersnew
+join pizza_names using (pizza_id)
+join runner_ordersnew  using(order_id)
+where cancellation is null
+group by pizza_name;
+
+-- Q5 How many Vegetarian and Meatlovers were ordered by each customer?
+select customer_id,pizza_name,count(pizza_id) as No_of_Pizzas from customer_ordersnew
+join pizza_names using (pizza_id)
+join runner_ordersnew  using(order_id)
+where cancellation is null
+group by customer_id,pizza_name;
+
+-- Q6 What was the maximum number of pizzas delivered in a single order?
+
+select order_id ,count(pizza_id) as No_of_Pizzas_Ordered from customer_ordersnew
+join runner_ordersnew  using(order_id)
+group by order_id 
+order by No_of_Pizzas_Ordered desc
+limit 1;
+
+-- Q7 For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+
+select customer_id,count(order_id)as total_orders,sum(case when exclusions is not null or extras is not null then 1 
+else 0 end )as AleastOneChange,sum(case when exclusions is null and extras is null then 1 
+else 0 end )as NoChange
+from customer_ordersnew 
+join runner_ordersnew  using(order_id)
+where cancellation is null   
+group by customer_id
+
+-- Q8 How many pizzas were delivered that had both exclusions and extras?
+
+select customer_id, sum(case when exclusions is not null and extras is not null then 1 
+else 0 end )as Exclusion_Extra_Pizza
+from customer_ordersnew 
+join runner_ordersnew  using(order_id)
+where cancellation is null   
+group by customer_id
+
+-- Q9 What was the total volume of pizzas ordered for each hour of the day?
+select extract (hour from order_time) as hour,count(order_id)as Total_Pizzas from customer_ordersnew
+group by extract (hour from order_time)
+order by extract (hour from order_time)
+
+-- Q10 What was the volume of orders for each day of the week?
+select to_char(order_time,'Day') as DailyData,count(order_id)as Total_Pizzas from customer_ordersnew
+group by to_char(order_time,'Day')
+order by Total_Pizzas desc
+
+-----------END OF PART-1-----------------------
+
+select * from customer_ordersnew;
+select * from pizza_names;
+select * from pizza_recipes;
+select * from pizza_toppings;
+select * from runner_ordersnew;
+select * from runners;
+
+
+--------------B. Runner and Customer Experience------------------
+
+--- Q1 How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+
+select extract(week from registration_date+interval '1 week') as Week_number,count(runner_id) as Total_Registration
+from runners
+group by extract(week from registration_date+interval '1 week')
+order by Week_number
+
+-- Q2 What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?
+with cte as(select runner_id,avg(pickup_time-order_time) as Avg_time from runner_ordersnew
+join customer_ordersnew using (order_id)
+group by runner_id)
+select runner_id, round(extract(minutes from Avg_time),2) as Avg_time_ from cte
+
+-- Q3 Is there any relationship between the number of pizzas and how long the order takes to prepare?
+
+with cte as(select order_id,count(order_id) as  total_pizza,avg(pickup_time-order_time) as Prep_time from runner_ordersnew
+join customer_ordersnew using (order_id)
+where cancellation is null
+group by order_id)
+select total_pizza, round(avg(extract(minutes from Prep_time)),0) as Avg_time_ from cte 
+group by total_pizza
+
+--Q4 What was the average distance travelled for each customer?
+select customer_id,round(avg(distance),2) as Average_Distance_Travelled_inKM from runner_ordersnew
+join customer_ordersnew using (order_id)
+group by customer_id
+order by customer_id
+
+--Q5 What was the difference between the longest and shortest delivery times for all orders?
+select max(duration)as slowest_delivery_time,min(duration) as fastest_delivery_time,
+max(duration)- min(duration) as Difference from runner_ordersnew
+
+-- Q6 What was the average speed for each runner for each delivery and do you notice any trend for these values?
+select order_id,runner_id,round(avg (distance*60/duration),2) as Speed_kmph from runner_ordersnew
+where distance<>0
+group by order_id,runner_id
+order by order_id
+
+-- Q7 What is the successful delivery percentage for each runner?
+select runner_id,concat(count(distance)*100/count(order_id),'%') as Delivery_percentage 
+from runner_ordersnew
+group by runner_id
+order by runner_id
+
+---------C. Ingredient Optimisation---------
+			
+select * from customer_ordersnew;
+select * from pizza_names;
+select * from pizza_recipesnew;
+select * from pizza_toppings;
+select * from runner_ordersnew;
+select * from runners;
+----------------Normalisation of pizza_recipesnew table-------------------------------			
+create table pizza_recipesnew (pizza_id integer,toppings integer);
+INSERT INTO pizza_recipesnew (pizza_id, toppings)
+  VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 8), (1, 10),
+  (2, 4), (2, 6), (2, 7), (2, 9), (2, 11), (2, 12);
+  
+-- Q1 What are the standard ingredients for each pizza?
+
+select pizza_name,string_agg(topping_name,', ') as Standard_Ingredient
+from pizza_recipesnew 
+join pizza_names 
+using (pizza_id)
+join pizza_toppings on pizza_recipesnew.toppings=pizza_toppings.topping_id
+group by pizza_name
+order by pizza_name
+
+-- Q2 What was the most commonly added extra?
+
+with cte as(select unnest(string_to_array(extras, ',')):: int as ext_top,count(*) as Occurence_count
+from Customer_ordersnew c
+where extras is not null
+group by ext_top)
+select topping_name as Extra_topping,Occurence_count from cte
+join pizza_toppings p on
+cte.ext_top = p.topping_id
+order by Occurence_count desc
+
+-- Q3 What was the most common exclusion?
+
+with cte as(select unnest(string_to_array(exclusions, ',')):: int as exclu_top,count(*) as Occurence_count
+from Customer_ordersnew c
+where exclusions is not null
+group by exclu_top)
+select topping_name as Exclusion_topping,Occurence_count from cte
+join pizza_toppings p on
+cte.exclu_top = p.topping_id
+order by Occurence_count desc
+
+/*Q4 Generate an order item for each record in the customers_orders table in the format of one of the following:
+Meat Lovers
+Meat Lovers - Exclude Beef
+Meat Lovers - Extra Bacon
+Meat Lovers - Exclude Cheese, Bacon - Extra Mushroom, Peppers*/
+
+with cte as (select*,row_number()over()as rn from customer_ordersnew),
+cte2 as(select rn,order_id,pizza_name,cte.pizza_id,customer_id,order_time,
+      	case when cte.exclusions!='null' and topping_id in (select unnest(string_to_array(cte.exclusions,',')::int [])) 
+		then topping_name end as exclusion_toppings,
+      	case when cte.extras !='null' and topping_id in (select unnest(string_to_array(cte.extras,',')::int [])) 
+		then topping_name end as extra_toppings
+	from pizza_toppings as t,cte
+    join pizza_names on cte.pizza_id=pizza_names.pizza_id
+    group by 
+      	 rn,
+      	 order_id,
+     	 pizza_name,customer_id,
+	 	 cte.pizza_id ,order_time,
+      	 exclusion_toppings,
+      	 extra_toppings)
+select
+order_id,customer_id,cte2.pizza_id,order_time,
+concat(pizza_name,
+	   ' ',
+	  case when count(exclusion_toppings)>0 then '-Exclude ' else '' end,
+	  string_agg(exclusion_toppings,', '),
+	  case when count(extra_toppings)>0 then '-Extra ' else '' end ,
+	  string_agg(extra_toppings,', '))as ingredients_list
+	  from cte2
+	  group by order_id,pizza_name,customer_id,order_time,cte2.pizza_id,cte2.rn
+	  order by rn
+	  
+
+	   
+
+/* Q5 Generate an alphabetically ordered comma separated ingredient list for each pizza order from the customer_orders table and add a 2x in front of any relevant ingredients
+For example: "Meat Lovers: 2xBacon, Beef, ... , Salami"*/
+
+
+
+
+
+--- Q6 What is the total quantity of each ingredient used in all delivered pizzas sorted by most frequent first?
+
+
+with std as(select topping_name,count(toppings) as std_Occurence_count from pizza_recipesnew pr
+join pizza_toppings pt on pr.toppings=pt.topping_id
+join customer_ordersnew  co using(pizza_id)
+join runner_ordersnew ro on ro.order_id=co.order_id
+where pizza_id in (1,2) and cancellation is null
+group by topping_name
+order by count(toppings)desc),
+extra as(
+select topping_name,extra_count from (select unnest(string_to_array(extras, ',')):: int as topping_id,count(*) as extra_count
+from Customer_ordersnew c
+where extras is not null and order_id not in (6,9)
+group by topping_id)t
+join pizza_toppings p on
+t.topping_id = p.topping_id
+order by extra_count desc),
+exclusion as(
+select topping_name,exclude_count from (select unnest(string_to_array(exclusions, ',')):: int as topping_id,count(*) as exclude_count
+from Customer_ordersnew c
+where exclusions is not null and order_id not in (6,9)
+group by topping_id)t
+join pizza_toppings p on
+t.topping_id = p.topping_id
+order by exclude_count desc)
+, total as (
+select std.topping_name,std_Occurence_count, extra_count,exclude_count from std
+left join extra on std.topping_name=extra.topping_name
+left join exclusion on std.topping_name=exclusion.topping_name)
+select total.topping_name,(std_Occurence_count+coalesce(extra_count,0)-coalesce(exclude_count,0)) as Total_ingredients from total
+order by Total_ingredients desc
+
+
+-------------------D. Pricing and Ratings---------------------
+			
+select * from customer_ordersnew;
+select * from pizza_names;
+select * from pizza_recipesnew;
+select * from pizza_toppings;
+select * from runner_ordersnew;
+select * from runners;	
+select * from ratings;			
+			
+			
+-- Q1 If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
+
+select sum(case when pizza_id = 1 then 12 else 10 end) as TotalAmount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null;
+
+--What if there was an additional $1 charge for any pizza extras? Add cheese is $1 extra
+
+with std_total as (select sum(case when pizza_id = 1 then 12 else 10 end) as TotalAmount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null),
+extras as (select sum(case when topping_id=4 then extra_count*2 else extra_count*1 end) as extras_sum
+		   from (select unnest(string_to_array(extras, ',')):: int as topping_id,count(*) as extra_count
+from Customer_ordersnew c
+where extras is not null and order_id not in (6,9)
+group by topping_id)t)
+select TotalAmount+extras_sum as total_amount from std_total,extras
+
+
+
+
+/* Q3 The Pizza Runner team now wants to add an additional ratings system that allows customers to rate their runner, 
+how would you design an additional table for this new dataset - 
+generate a schema for this new table and insert your own data for ratings for each successful customer order 
+between 1 to 5.*/
+
+drop table if exists ratings;
+create table ratings (
+order_id integer,
+rating integer);
+insert into ratings
+(order_id, rating)
+values
+(1,4),
+(2,5),
+(3,3),
+(4,5),
+(5,2),
+(6,null),
+(7,3),
+(9,null),
+(8,4),
+(10,4);
+
+/*Q4 Using your newly generated table - can you join all of the information together to form a table which has the following information for successful deliveries?
+customer_id,order_id,runner_id,rating,order_time,pickup_time,Time between order and pickup,Delivery duration,Average speed,Total number of pizzas8 */
+
+Select customer_id,o.order_id,runner_id,rating,order_time,pickup_time,
+--extract (minute from 
+(pickup_time-order_time)as Time_between_order_pickup, duration as Delivery_duration,
+round((distance*60/duration),2) as Average_speed,count(pizza_id) as Total_number_of_pizzas
+from customer_ordersnew o
+join runner_ordersnew using (order_id)
+join ratings using (order_id)
+where cancellation is null
+group by customer_id,o.order_id,runner_id,rating,order_time,pickup_time,
+extract (minute from (pickup_time-order_time)), duration,
+(distance*60/duration) 
+
+	
+
+
+/* Q5 If a Meat Lovers pizza was $12 and Vegetarian $10 fixed prices with no cost for extras 
+and each runner is paid $0.30 per kilometre traveled
+how much money does Pizza Runner have left over after these deliveries?*/
+
+with total_price as (select sum(case when pizza_id = 1 then 12 else 10 end) as total_amount
+from runner_ordersnew 
+join customer_ordersnew
+using(order_id)
+where cancellation is null),
+delivery_charges as(select sum(distance)*0.3 as delivery_cost from runner_ordersnew)
+
+select round((total_amount-delivery_cost),1) money_left from total_price,delivery_charges
+
+
+-- Bonus Questions----------------------------------------------
+
+select * from customer_ordersnew;
+select * from pizza_namesnew;
+select * from pizza_recipesnew1;
+select * from pizza_toppings;
+select * from runner_ordersnew;
+select * from runners;	
+select * from ratings;
+
+
+/*If Danny wants to expand his range of pizzas - how would this impact the existing data design?
+Write an INSERT statement to demonstrate what would happen if a new Supreme pizza with all the toppings was added to the Pizza Runner menu?*/
+
+Create table pizza_namesnew as Select* from pizza_names
+
+insert into pizza_namesnew (pizza_id, pizza_name)
+values (3, 'Supreme');
+
+Create table pizza_recipesnew1 as Select* from pizza_recipesnew
+
+INSERT INTO pizza_recipesnew1 (pizza_id, toppings)
+VALUES (3,1),(3,2),(3,3),(3,4),(3,5),(3,6),(3,7),(3,8),(3,9),(3,10),(3,11),(3,12)
