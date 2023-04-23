@@ -664,7 +664,7 @@ Click here to expand!
 
      * ```Bacon is the most popular extra ingredient```, and it was added to 4 pizzas. This suggests that bacon is a popular choice among customers who like to customize their pizzas. 
   
-     * ```Similarly, cheese is the most common exclusion, and it was excluded from 4 pizzas. This could be due to various reasons, such as dietary restrictions or personal preferences.
+     * ```Similarly, cheese is the most common exclusion```, and it was excluded from 4 pizzas. This could be due to various reasons, such as dietary restrictions or personal preferences.
  
      * Ingredients  that are popular among customers are,Bacon is the most frequently used ingredient with a total quantity of 12. It is followed closely by mushrooms with a quantity of 11, and cheese with a quantity of 10.
 
@@ -682,17 +682,17 @@ Click here to expand!
  
 After analysing this case study, I have gained a strong understanding of the following concepts:
 
--Common Table Expressions.
+- Common Table Expressions.
  
--Group By Aggregates.
+- Group By Aggregates.
  
--Window Functions for row number.
+- Window Functions for row number.
  
--Joins with using keyword.
+- Joins with using keyword.
  
--Case Function with between and date function.
+- Case Function with between and date function.
 
--String transformations(like Unnest and string toarray functions,string_agg)
+- String transformations(like Unnest and string toarray functions,string_agg)
 
 - Dealing with null values and table normalisations.
 
