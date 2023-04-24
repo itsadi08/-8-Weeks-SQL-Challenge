@@ -10,17 +10,17 @@ Here's the link for Challenge- (https://8weeksqlchallenge.com)
 
 ## 📖 Table of Contents
 
-  •	[Case Study #1 - Danny's Diner](https://github.com/itsadi08/8-Weeks-SQL-Challenge/edit/main#-case-study-1-dannys-diner)
+  •	[Case Study #1 - Danny's Diner](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-1---dannys-diner)
   
-  •	[Case Study #2 - Pizza Runner](https://github.com/itsadi08/8-Weeks-SQL-Challenge/edit/main#-case-study-2-pizza-runner)
+  •	[Case Study #2 - Pizza Runner](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-2---pizza-runner)
   
-  •	[Case Study #3 - Foodie-Fi](https://github.com/itsadi08/8-Weeks-SQL-Challenge/edit/main/README.md#case-study-3-foodie-fi)
+  •	[Case Study #3 - Foodie-Fi](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-3---foodie-fi)
   
-  •	[Case Study #4 - Data Bank](#case-study-4-data-bank)
+  •	[Case Study #4 - Data Bank](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-4---data-bank)
   
-  •	[Case Study #5 - Data Mart](#case-study-5-data-mart)
+  •	[Case Study #5 - Data Mart](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-5---data-mart)
   
-  •	[Case Study #6 - Clique Bait](#case-study-6-clique-bait)
+  •	[Case Study #6 - Clique Bait](https://github.com/itsadi08/SQL-PROJECTS/blob/main/README.md#-case-study-6---clique-bait)
 
 
 
