@@ -307,7 +307,7 @@ with cte as(select runner_id,avg(pickup_time-order_time) as Avg_time from runner
 join customer_ordersnew using (order_id)
 group by runner_id)
 select runner_id, round(extract(minutes from Avg_time),2) as Avg_time_ from cte;
-
+```
 ![image](https://user-images.githubusercontent.com/121611397/233777099-1db64006-28dc-4807-a22d-9f9f93e8c584.png)	
 	
 ### Q3 Is there any relationship between the number of pizzas and how long the order takes to prepare?
