@@ -138,8 +138,8 @@ create table customer_ordersnew as
 from customer_orders);
 								 
 update customer_ordersnew
-set exclusions=case when exclusions ='No Record' then null else exclusions end,
-extras=case when extras='No Record' then null else extras end;
+set exclusions=case when exclusions ='' then null else exclusions end,
+extras=case when extras='' then null else extras end;
 ```
 ![image](https://user-images.githubusercontent.com/121611397/233773193-3adb31fe-89ae-432a-b9dd-5898ce9dce5e.png)
 
